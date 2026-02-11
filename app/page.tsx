@@ -543,23 +543,41 @@ export default function Home() {
       {/* FAQ Section */}
       <section className="bg-white py-24 md:py-32">
         <div className="container mx-auto px-6 md:px-12 lg:px-24">
-          <h2 className="mb-20 text-center text-4xl font-bold tracking-tight text-[#0f172a] md:text-5xl">
-            Frequently asked questions
+          <h2 className="mb-20 text-center text-4xl font-bold tracking-tight text-[#0f172a] md:text-5xl uppercase">
+            Q&A FOR SPEUI’S WEBSITE
           </h2>
 
           <div className="mx-auto max-w-4xl space-y-4">
             {[
-              "What is SPEUI?",
-              "Who can join SPEUI?",
-              "Is SPEUI membership free?",
-              "What benefits do SPEUI members get?",
-              "How do I become a member of SPEUI?",
-              "Do I need to be a Petroleum Engineering student to join?",
-            ].map((question, index) => (
+              {
+                q: "WHAT IS SPEUI?",
+                a: "SPE UI is the student chapter of the Society of Petroleum Engineers at the University of Ibadan.\n\nHere, future petroleum engineers are molded through the combination of leadership development, real-world industry exposure and a strong professional network to stand out in the energy sector. SPE UI is a space made for you to learn, lead and level up for the future of energy.",
+              },
+              {
+                q: "WHO CAN JOIN SPE UI?",
+                a: "SPE UI welcomes students across key disciplines like engineering, geoscience, environmental sciences, and business. And if you are curious and passionate about energy, there’s a seat for you at SPE UI.",
+              },
+              {
+                q: "IS SPEUI MEMBERSHIP FREE?",
+                a: "Absolutely. Joining SPE UI comes at no cost. All you need to do is register and be part of the SPE UI community.",
+              },
+              {
+                q: "WHAT BENEFITS DO SPE MEMBERS GET?",
+                a: "Being an SPE UI member comes with perks that level up your career and your network. Here’s what SPE UI membership gives you:\n\n● Network with industry professionals and like-minded students.\n● Access scholarships, internships, and job opportunities.\n● Professional development through workshops, conferences, and training.\n● Global connections with 230,000+ members across 14 countries.\n● Receive career guidance from mentors.\n● Compete in paper contests.",
+              },
+              {
+                q: "HOW DO I BECOME A MEMBER OF SPE UI?",
+                a: "Join in just a few clicks using our registration link, https://www.spe.org/en/members/, and renew yearly to keep enjoying all perks of membership.",
+              },
+              {
+                q: "DO I NEED TO BE A PETROLEUM ENGINEERING STUDENT TO JOIN?",
+                a: "Absolutely not! Whether you’re in engineering, geoscience, environmental science, or just an energy enthusiast, SPE UI welcomes you.",
+              },
+            ].map((faq, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.05 }}
                 className="group overflow-hidden rounded-2xl border border-blue-50/50 bg-[#f8faff] transition-colors hover:bg-blue-50/80"
@@ -573,7 +591,7 @@ export default function Home() {
                       {String(index + 1).padStart(2, '0')}
                     </span>
                     <span className="text-base font-bold text-[#0f172a] md:text-lg">
-                      {question}
+                      {faq.q}
                     </span>
                   </div>
                   <div className={`shrink-0 rounded-full border border-gray-200 bg-white p-1.5 transition-transform duration-300 ${openFaq === index ? 'rotate-45' : ''}`}>
@@ -589,9 +607,9 @@ export default function Home() {
                       transition={{ duration: 0.3, ease: "easeInOut" }}
                     >
                       <div className="px-5 pb-6 text-sm text-gray-600 md:px-8 md:pl-24 md:text-base">
-                        <p>
-                          Detailed information about {question.toLowerCase()} will be provided here to help students and members understand our organization better.
-                        </p>
+                        <div className="whitespace-pre-line leading-relaxed">
+                          {faq.a}
+                        </div>
                       </div>
                     </motion.div>
                   )}
