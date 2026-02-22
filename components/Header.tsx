@@ -3,10 +3,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function Header() {
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const navLinks = [
     { name: "Home", href: "/" },
@@ -32,17 +34,22 @@ export default function Header() {
 
         <nav className="absolute left-1/2 -translate-x-1/2 hidden md:block">
           <div className="flex items-center gap-10 rounded-2xl border border-white/20 bg-gray-50/50 px-12 py-4 shadow-[0_8px_32_rgba(0,0,0,0.06)] backdrop-blur-xl">
-            {navLinks.map((link) => (
-              <Link
-                key={link.name}
-                href={link.href}
-                className={`text-[15px] font-semibold transition-colors hover:text-blue-600 cursor-pointer ${
-                  link.name === "Home" ? "text-black border-b-2 border-black pb-0.5" : "text-gray-800"
-                }`}
-              >
-                {link.name}
-              </Link>
-            ))}
+            {navLinks.map((link) => {
+              const isActive = link.href === "/" 
+                ? pathname === "/" 
+                : pathname.startsWith(link.href);
+              return (
+                <Link
+                  key={link.name}
+                  href={link.href}
+                  className={`text-[15px] font-semibold transition-colors hover:text-blue-600 cursor-pointer ${
+                    isActive ? "text-black border-b-2 border-black pb-0.5" : "text-gray-800"
+                  }`}
+                >
+                  {link.name}
+                </Link>
+              );
+            })}
           </div>
         </nav>
 
