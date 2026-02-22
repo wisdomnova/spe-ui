@@ -18,12 +18,12 @@ export default function BlogSlugPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="text-4xl font-bold leading-tight tracking-tight sm:text-5xl md:text-6xl lg:text-[70px] text-gray-900"
+              className="text-[34px] font-bold leading-[1.1] tracking-tight sm:text-5xl md:text-6xl lg:text-[74px] text-gray-900"
             >
               Advancing Energy Education Through Student Leadership
             </motion.h1>
             
-            <p className="text-lg font-medium text-gray-500 leading-relaxed max-w-4xl">
+            <p className="text-base sm:text-lg font-medium text-gray-500 leading-relaxed max-w-4xl">
               Student leadership plays a vital role in shaping the future of energy education. Through active participation in professional societies, students gain exposure to industry practices, develop leadership skills, and apply classroom knowledge to real-world challenges.
             </p>
 

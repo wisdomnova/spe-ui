@@ -21,7 +21,7 @@ export default function Header() {
   return (
     <>
       <header className="fixed top-0 z-50 flex w-full items-center justify-between px-6 py-6 md:px-12 md:py-10 lg:px-24">
-        <div className="flex-shrink-0">
+        <Link href="/" className="flex-shrink-0 transition-opacity hover:opacity-85">
           <Image
             src="/speui.png"
             alt="SPE International Logo"
@@ -30,7 +30,7 @@ export default function Header() {
             className="h-auto w-[50px] md:w-[70px]"
             priority
           />
-        </div>
+        </Link>
 
         <nav className="absolute left-1/2 -translate-x-1/2 hidden md:block">
           <div className="flex items-center gap-10 rounded-2xl border border-white/20 bg-gray-50/50 px-12 py-4 shadow-[0_8px_32_rgba(0,0,0,0.06)] backdrop-blur-xl">
@@ -56,7 +56,7 @@ export default function Header() {
         <div className="flex items-center md:hidden">
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="rounded-xl bg-gray-50 p-2 shadow-sm cursor-pointer"
+            className="rounded-xl bg-gray-50 p-2 shadow-sm cursor-pointer text-black"
           >
             {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>

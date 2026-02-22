@@ -40,11 +40,15 @@ export default function MembershipPage() {
             {/* Phone Image 1 */}
             <motion.div 
               initial={{ opacity: 0, scale: 0.9, rotate: 5 }}
-              animate={{ opacity: 1, scale: 1.35, rotate: 0 }} // Further increased scale
+              animate={{ 
+                opacity: 1, 
+                scale: [0.9, 1, 1.1, 1.35], // Sequential scale for better control
+                rotate: 0 
+              }}
               transition={{ duration: 1, delay: 0.2 }}
-              className="relative w-full lg:w-1/2 flex justify-center lg:justify-start lg:-ml-28" // Pulled in even closer
+              className="relative w-full lg:w-1/2 flex justify-center lg:justify-start lg:-ml-28 mt-20 lg:mt-0"
             >
-              <div className="relative w-[360px] sm:w-[600px] lg:w-[850px] aspect-[4/5]">
+              <div className="relative w-[80vw] sm:w-[500px] lg:w-[850px] aspect-[4/5] max-w-[320px] sm:max-w-none">
                 <Image
                   src="/phone_01.png"
                   alt="SPEUI Mobile App Mockup"
@@ -58,7 +62,7 @@ export default function MembershipPage() {
         </div>
 
         {/* How to Join Section */}
-        <div className="mt-32 bg-white py-24 md:mt-48 md:py-32">
+        <div className="mt-48 md:mt-64 bg-white py-24 md:py-32">
           <div className="container mx-auto px-6">
             <div className="flex flex-col-reverse items-center justify-between gap-16 lg:flex-row">
               {/* Phone Image 2 */}
@@ -69,7 +73,7 @@ export default function MembershipPage() {
                 viewport={{ once: true }}
                 className="relative w-full lg:w-1/2 flex justify-center lg:justify-start"
               >
-                <div className="relative w-[300px] sm:w-[400px] lg:w-[500px] aspect-square">
+                <div className="relative w-[80vw] sm:w-[400px] lg:w-[500px] aspect-square max-w-[300px] sm:max-w-none">
                   <Image
                     src="/phone_02.png"
                     alt="How to Join SPEUI Mockup"

@@ -22,12 +22,12 @@ export default function BlogPage() {
       <main className="flex-grow pt-32 pb-24 md:pt-44 md:pb-32">
         <div className="container mx-auto px-6">
           {/* Page Heading */}
-          <div className="mb-20 flex justify-center text-center">
+          <div className="mb-16 md:mb-24 flex justify-center text-center">
             <motion.h1 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="max-w-4xl text-5xl font-bold leading-[1.1] tracking-tight text-black sm:text-7xl lg:text-[84px]"
+              className="max-w-4xl text-[38px] font-bold leading-[1.1] tracking-tight text-black sm:text-6xl md:text-7xl lg:text-[84px]"
             >
               Insights, Events, and Energy Conversations
             </motion.h1>

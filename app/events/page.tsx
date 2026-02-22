@@ -189,7 +189,7 @@ export default function EventsPage() {
           <div className="grid grid-cols-1 gap-12 lg:grid-cols-3 lg:items-end lg:gap-8">
             {/* Column 1 */}
             <div className="flex flex-col gap-10">
-              <h2 className="text-5xl font-bold leading-none tracking-tight sm:text-7xl lg:text-8xl">
+              <h2 className="text-[44px] font-bold leading-[0.9] tracking-tight sm:text-7xl lg:text-8xl">
                 Become a<br />
                 Sponsor
               </h2>
@@ -246,33 +246,33 @@ export default function EventsPage() {
 
       {/* Stay Updated Section */}
       <section className="relative overflow-hidden bg-white py-24 md:py-32">
-        <div className="container mx-auto px-6 lg:px-32 xl:px-48">
+        <div className="container mx-auto px-6 lg:px-24 xl:px-44">
           <div className="flex flex-col items-center justify-between gap-12 lg:flex-row">
             <div className="flex flex-col items-start gap-8 lg:w-1/2">
-              <h2 className="text-7xl font-bold leading-[0.9] text-[#2563eb] sm:text-[100px] lg:text-[120px]">
+              <h2 className="text-5xl font-bold leading-[0.9] text-[#2563eb] sm:text-[80px] md:text-[100px] lg:text-[120px]">
                 STAY<br />
                 UPDATED
               </h2>
-              <p className="max-w-md text-lg font-medium text-gray-900 md:text-xl">
+              <p className="max-w-md text-base font-medium text-gray-900 md:text-xl">
                 Stay informed about upcoming events, schedules, and registration details through:
               </p>
-              <button className="flex items-center gap-6 rounded-full bg-[#2563eb] px-10 py-5 text-xl font-bold text-white transition-all hover:bg-black group">
+              <button className="flex items-center gap-6 rounded-full bg-[#2563eb] px-8 py-4 text-lg font-bold text-white transition-all hover:bg-black group sm:px-10 sm:py-5 sm:text-xl">
                 <span>Join SPE</span>
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-black transition-colors group-hover:bg-blue-600">
-                  <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5 stroke-white stroke-[3px]">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-black transition-colors group-hover:bg-blue-600 sm:h-9 sm:w-9">
+                  <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4 stroke-white stroke-[3px] sm:h-5 sm:w-5">
                     <path d="M5 12h14m-7-7 7 7-7 7" />
                   </svg>
                 </div>
               </button>
             </div>
 
-            <div className="relative w-full lg:w-1/2">
+            <div className="relative w-full lg:w-1/2 mt-12 lg:mt-0">
               <motion.div
                 initial={{ opacity: 0, scale: 0.9, rotate: -5 }}
                 whileInView={{ opacity: 1, scale: 1, rotate: 0 }}
                 transition={{ duration: 0.8 }}
                 viewport={{ once: true }}
-                className="relative mx-auto lg:scale-125 lg:translate-x-12"
+                className="relative mx-auto lg:scale-125 lg:translate-x-12 max-w-[300px] sm:max-w-[450px] lg:max-w-none"
               >
                 <Image
                   src="/megaphone.png"
