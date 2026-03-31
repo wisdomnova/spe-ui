@@ -27,14 +27,19 @@ export default function MembershipPage() {
               <p className="max-w-xl text-lg font-medium leading-relaxed text-gray-600 md:text-xl">
                 SPE University of Ibadan (SPEUI) connects students to industry knowledge, leadership opportunities, and global exposure within the energy sector.
               </p>
-              <button className="flex items-center gap-4 rounded-full bg-[#2563eb] px-10 py-4.5 text-lg font-bold text-white shadow-[0_10px_20px_rgba(37,99,235,0.2)] transition-all hover:bg-blue-600 hover:shadow-[0_15px_30px_rgba(37,99,235,0.3)]">
-                <span>Join SPEUI</span>
+              <a 
+                href="https://spe.org/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center gap-4 rounded-full bg-[#2563eb] px-10 py-4.5 text-lg font-bold text-white shadow-[0_10px_20px_rgba(37,99,235,0.2)] transition-all hover:bg-blue-600 hover:shadow-[0_15px_30px_rgba(37,99,235,0.3)]"
+              >
+                <span>Visit SPE Global</span>
                 <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white/20">
                   <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4 stroke-white stroke-[3px]">
                     <path d="M5 12h14m-7-7 7 7-7 7" />
                   </svg>
                 </div>
-              </button>
+              </a>
             </motion.div>
 
             {/* Phone Image 1 */}
@@ -125,14 +130,19 @@ export default function MembershipPage() {
                   </div>
                 </div>
 
-                <button className="flex items-center gap-4 rounded-full bg-[#2563eb] px-10 py-4.5 text-lg font-bold text-white shadow-[0_10px_20px_rgba(37,99,235,0.2)] transition-all hover:bg-blue-600 hover:shadow-[0_15px_30px_rgba(37,99,235,0.3)]">
-                  <span>Register</span>
+                <a 
+                  href="https://spe.org/en/join/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-4 rounded-full bg-[#2563eb] px-10 py-4.5 text-lg font-bold text-white shadow-[0_10px_20px_rgba(37,99,235,0.2)] transition-all hover:bg-blue-600 hover:shadow-[0_15px_30px_rgba(37,99,235,0.3)]"
+                >
+                  <span>Register Now</span>
                   <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white/20">
                     <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4 stroke-white stroke-[3px]">
                       <path d="M5 12h14m-7-7 7 7-7 7" />
                     </svg>
                   </div>
-                </button>
+                </a>
               </motion.div>
             </div>
           </div>
