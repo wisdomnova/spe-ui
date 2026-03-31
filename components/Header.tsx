@@ -4,14 +4,34 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
-import { Menu, X } from "lucide-react";
+import { Menu, X, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function Header() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+
   const navLinks = [
     { name: "Home", href: "/" },
+    {
+      name: "About",
+      href: "#",
+      dropdown: [
+        { name: "About Us", href: "/about" },
+        { name: "Team", href: "/about/team" },
+      ],
+    },
+    {
+      name: "Programs",
+      href: "#",
+      dropdown: [
+        { name: "Membership Spotlight", href: "/programs/membership-spotlight" },
+        { name: "Become a Sponsor", href: "/programs/sponsor" },
+        { name: "Electoral Session", href: "/programs/electoral-session" },
+        { name: "Resources", href: "/programs/resources" },
+      ],
+    },
     { name: "Events", href: "/events" },
     { name: "Blog", href: "/blog" },
     { name: "Membership", href: "/membership" },
@@ -37,7 +57,49 @@ export default function Header() {
             {navLinks.map((link) => {
               const isActive = link.href === "/" 
                 ? pathname === "/" 
-                : pathname.startsWith(link.href);
+                : link.href !== "#" && pathname.startsWith(link.href);
+              
+              if (link.dropdown) {
+                return (
+                  <div
+                    key={link.name}
+                    className="relative group h-full flex items-center"
+                    onMouseEnter={() => setActiveDropdown(link.name)}
+                    onMouseLeave={() => setActiveDropdown(null)}
+                  >
+                    <button
+                      className={`flex items-center gap-1 text-[15px] font-semibold transition-colors hover:text-blue-600 cursor-pointer ${
+                        activeDropdown === link.name ? "text-blue-600" : "text-gray-800"
+                      }`}
+                    >
+                      {link.name}
+                      <ChevronDown className={`h-4 w-4 transition-transform ${activeDropdown === link.name ? "rotate-180" : ""}`} />
+                    </button>
+                    
+                    <AnimatePresence>
+                      {activeDropdown === link.name && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 10 }}
+                          className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-48 rounded-xl border border-white/20 bg-white/90 p-2 shadow-xl backdrop-blur-xl"
+                        >
+                          {link.dropdown.map((item) => (
+                            <Link
+                              key={item.name}
+                              href={item.href}
+                              className="block rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-blue-600"
+                            >
+                              {item.name}
+                            </Link>
+                          ))}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                );
+              }
+
               return (
                 <Link
                   key={link.name}
@@ -72,20 +134,39 @@ export default function Header() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="fixed inset-0 z-40 bg-white pt-32 px-6 md:hidden"
+            className="fixed inset-0 z-40 bg-white pt-32 px-6 md:hidden overflow-y-auto"
           >
-            <nav className="flex flex-col gap-8">
+            <nav className="flex flex-col gap-6">
               {navLinks.map((link) => (
-                <Link
-                  key={link.name}
-                  href={link.href}
-                  onClick={() => setIsOpen(false)}
-                  className="text-3xl font-bold text-gray-900 cursor-pointer"
-                >
-                  {link.name}
-                </Link>
+                <div key={link.name}>
+                  {link.dropdown ? (
+                    <div className="flex flex-col gap-4">
+                      <span className="text-3xl font-bold text-gray-400">{link.name}</span>
+                      <div className="flex flex-col gap-4 pl-4 border-l-2 border-gray-100">
+                        {link.dropdown.map((item) => (
+                          <Link
+                            key={item.name}
+                            href={item.href}
+                            onClick={() => setIsOpen(false)}
+                            className="text-2xl font-bold text-gray-900 cursor-pointer"
+                          >
+                            {item.name}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <Link
+                      href={link.href}
+                      onClick={() => setIsOpen(false)}
+                      className="text-3xl font-bold text-gray-900 cursor-pointer"
+                    >
+                      {link.name}
+                    </Link>
+                  )}
+                </div>
               ))}
-              <div className="mt-8 flex flex-col gap-4">
+              <div className="mt-8 flex flex-col gap-4 pb-10">
                 <button className="h-[60px] w-full cursor-pointer rounded-2xl bg-[#2563eb] text-lg font-bold text-white shadow-lg">
                   Join SPEUI
                 </button>

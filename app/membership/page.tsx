@@ -108,6 +108,23 @@ export default function MembershipPage() {
                     <p>Complete local onboarding if required</p>
                   </div>
                 </div>
+                
+                {/* Video Component */}
+                <div className="mt-12 w-full overflow-hidden rounded-[2rem] border border-gray-100 bg-gray-50 shadow-sm transition-all hover:shadow-md">
+                  <div className="aspect-video w-full">
+                    <iframe
+                      width="100%"
+                      height="100%"
+                      src="https://www.youtube.com/embed/d6Xk4ajTGV4"
+                      title="How to join SPEUI"
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowFullScreen
+                      className="h-full w-full"
+                    ></iframe>
+                  </div>
+                </div>
+
                 <button className="flex items-center gap-4 rounded-full bg-[#2563eb] px-10 py-4.5 text-lg font-bold text-white shadow-[0_10px_20px_rgba(37,99,235,0.2)] transition-all hover:bg-blue-600 hover:shadow-[0_15px_30px_rgba(37,99,235,0.3)]">
                   <span>Register</span>
                   <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white/20">

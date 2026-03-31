@@ -544,7 +544,7 @@ export default function Home() {
       <section className="bg-white py-24 md:py-32">
         <div className="container mx-auto px-6 md:px-12 lg:px-24">
           <h2 className="mb-20 text-center text-4xl font-bold tracking-tight text-[#0f172a] md:text-5xl uppercase">
-            Q&A FOR SPEUI’S WEBSITE
+            Q&A
           </h2>
 
           <div className="mx-auto max-w-4xl space-y-4">
