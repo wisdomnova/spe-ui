@@ -28,7 +28,7 @@ export default function Footer() {
       <div className="container relative z-10 mx-auto px-6 md:px-12 lg:px-24">
         <div className="flex flex-col justify-between gap-16 lg:flex-row lg:items-start">
           {/* Newsletter Column */}
-          <div className="flex flex-col gap-8">
+          <div id="newsletter" className="flex flex-col gap-8 scroll-mt-8">
             <h2 className="text-4xl font-bold tracking-tight text-white md:text-6xl lg:text-7xl">
               Stay Connected!
             </h2>
@@ -62,24 +62,32 @@ export default function Footer() {
           {/* Links Columns */}
           <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:gap-24">
             <div className="flex flex-col gap-4 md:gap-6">
-              {["Blogs", "FAQs", "Events"].map((link) => (
+              {[
+                { label: "Blogs", href: "/blog" },
+                { label: "FAQs", href: "/#faq" },
+                { label: "Events", href: "/events" },
+              ].map((link) => (
                 <Link
-                  key={link}
-                  href={`/${link.toLowerCase()}`}
+                  key={link.label}
+                  href={link.href}
                   className="text-lg cursor-pointer font-medium text-white transition-colors hover:text-blue-500 md:text-xl"
                 >
-                  {link}
+                  {link.label}
                 </Link>
               ))}
             </div>
             <div className="flex flex-col gap-4 md:gap-6">
-              {["Sponsors", "About us", "Membership"].map((link) => (
+              {[
+                { label: "Sponsors", href: "/programs/sponsor" },
+                { label: "About us", href: "/about" },
+                { label: "Membership", href: "/membership" },
+              ].map((link) => (
                 <Link
-                  key={link}
-                  href={`/${link.toLowerCase().replace(" ", "-")}`}
+                  key={link.label}
+                  href={link.href}
                   className="text-lg cursor-pointer font-medium text-white transition-colors hover:text-blue-500 md:text-xl"
                 >
-                  {link}
+                  {link.label}
                 </Link>
               ))}
             </div>

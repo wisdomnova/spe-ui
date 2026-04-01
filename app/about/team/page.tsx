@@ -5,51 +5,19 @@ import { motion } from "framer-motion";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Linkedin, Twitter, Mail, ArrowUpRight } from "lucide-react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
 
-const teamMembers = [
-  {
-    name: "Alex Johnson",
-    role: "President",
-    image: "/team/dummy-1.png",
-    bio: "Leading SPEUI towards a sustainable future in energy education and student empowerment.",
-    socials: { linkedin: "#", twitter: "#", email: "alex@speui.org" }
-  },
-  {
-    name: "Sarah Chen",
-    role: "Vice President",
-    image: "/team/dummy-2.png",
-    bio: "Driving excellence in program development and student engagement across the chapter.",
-    socials: { linkedin: "#", twitter: "#", email: "sarah@speui.org" }
-  },
-  {
-    name: "Dr. Michael Smith",
-    role: "Faculty Advisor",
-    image: "/team/dummy-3.png",
-    bio: "Providing academic guidance and bridging the gap between industry and student research.",
-    socials: { linkedin: "#", email: "michael@speui.org" }
-  },
-  {
-    name: "Elena Rodriguez",
-    role: "Secretary",
-    image: "/team/dummy-4.png",
-    bio: "Ensuring seamless operations and clear communication within the executive committee.",
-    socials: { linkedin: "#", twitter: "#", email: "elena@speui.org" }
-  },
-  {
-    name: "David Kwok",
-    role: "Treasurer",
-    image: "/team/dummy-5.png",
-    bio: "Managing chapter finances and securing resources for our annual flagship events.",
-    socials: { linkedin: "#", twitter: "#", email: "david@speui.org" }
-  },
-  {
-    name: "Amina Al-Farsi",
-    role: "Programs Director",
-    image: "/team/dummy-6.png",
-    bio: "Curating a diverse range of technical workshops and networking sessions for members.",
-    socials: { linkedin: "#", twitter: "#", email: "amina@speui.org" }
-  }
-];
+interface TeamMember {
+  id: string;
+  name: string;
+  role: string;
+  department: string;
+  email: string;
+  linkedin: string | null;
+  twitter: string | null;
+  image_url: string | null;
+}
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -71,6 +39,22 @@ const itemVariants = {
 };
 
 export default function TeamPage() {
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchTeam();
+  }, []);
+
+  const fetchTeam = async () => {
+    const { data } = await supabase
+      .from("team_members")
+      .select("id, name, role, department, email, linkedin, twitter, image_url")
+      .order("created_at", { ascending: true });
+
+    setTeamMembers(data || []);
+    setLoading(false);
+  };
   return (
     <div className="flex min-h-screen flex-col bg-[#F8FAFF]">
       <Header />
@@ -106,49 +90,99 @@ export default function TeamPage() {
           </div>
 
           {/* Team Grid */}
+          {loading ? (
+            <div className="flex items-center justify-center py-32">
+              <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
+            </div>
+          ) : teamMembers.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-32 px-6">
+              <svg width="240" height="180" viewBox="0 0 240 180" fill="none" xmlns="http://www.w3.org/2000/svg" className="mb-8">
+                {/* Center person */}
+                <circle cx="120" cy="60" r="24" fill="#DBEAFE" stroke="#93C5FD" strokeWidth="2" />
+                <circle cx="120" cy="52" r="10" fill="#93C5FD" />
+                <path d="M104 72c0-8.8 7.2-12 16-12s16 3.2 16 12" stroke="#93C5FD" strokeWidth="2" fill="none" strokeLinecap="round" />
+                {/* Center body */}
+                <rect x="100" y="90" width="40" height="50" rx="12" fill="#EFF6FF" stroke="#BFDBFE" strokeWidth="2" />
+                {/* Left person (smaller) */}
+                <circle cx="55" cy="75" r="18" fill="#F3F4F6" stroke="#E5E7EB" strokeWidth="1.5" />
+                <circle cx="55" cy="69" r="7" fill="#D1D5DB" />
+                <path d="M43 83c0-6.6 5.4-9 12-9s12 2.4 12 9" stroke="#D1D5DB" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+                <rect x="40" y="98" width="30" height="38" rx="10" fill="#F9FAFB" stroke="#E5E7EB" strokeWidth="1.5" />
+                {/* Right person (smaller) */}
+                <circle cx="185" cy="75" r="18" fill="#F3F4F6" stroke="#E5E7EB" strokeWidth="1.5" />
+                <circle cx="185" cy="69" r="7" fill="#D1D5DB" />
+                <path d="M173 83c0-6.6 5.4-9 12-9s12 2.4 12 9" stroke="#D1D5DB" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+                <rect x="170" y="98" width="30" height="38" rx="10" fill="#F9FAFB" stroke="#E5E7EB" strokeWidth="1.5" />
+                {/* Connection lines */}
+                <line x1="73" y1="85" x2="100" y2="95" stroke="#DBEAFE" strokeWidth="1.5" strokeDasharray="4 3" />
+                <line x1="167" y1="85" x2="140" y2="95" stroke="#DBEAFE" strokeWidth="1.5" strokeDasharray="4 3" />
+                {/* Sparkles */}
+                <circle cx="25" cy="55" r="3" fill="#93C5FD" opacity="0.5" />
+                <circle cx="215" cy="55" r="2.5" fill="#BFDBFE" opacity="0.6" />
+                <path d="M120 25l2.5-7 2.5 7-7-2.5 7-2.5z" fill="#60A5FA" opacity="0.4" />
+                <path d="M30 120l2-5 2 5-5-2 5-2z" fill="#93C5FD" opacity="0.4" />
+                <path d="M210 120l2-5 2 5-5-2 5-2z" fill="#BFDBFE" opacity="0.5" />
+                {/* Plus icon hint */}
+                <circle cx="120" cy="155" r="12" fill="#EFF6FF" stroke="#BFDBFE" strokeWidth="1.5" strokeDasharray="3 3" />
+                <line x1="120" y1="149" x2="120" y2="161" stroke="#93C5FD" strokeWidth="2" strokeLinecap="round" />
+                <line x1="114" y1="155" x2="126" y2="155" stroke="#93C5FD" strokeWidth="2" strokeLinecap="round" />
+              </svg>
+              <h3 className="text-xl font-bold text-gray-800 mb-2">Team coming soon</h3>
+              <p className="text-gray-400 text-sm max-w-xs text-center">We&apos;re assembling our dream team. The faces behind SPEUI will be here shortly!</p>
+            </div>
+          ) : (
           <motion.div 
             variants={containerVariants}
             initial="hidden"
             animate="visible"
             className="mx-auto grid max-w-7xl grid-cols-1 gap-x-10 gap-y-16 md:grid-cols-2 lg:grid-cols-3"
           >
-            {teamMembers.map((member, index) => (
+            {teamMembers.map((member) => (
               <motion.div
-                key={index}
+                key={member.id}
                 variants={itemVariants}
                 className="group relative"
               >
                 {/* Image Container */}
                 <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[2.5rem] bg-gray-100 shadow-sm transition-all duration-500 hover:shadow-2xl">
-                  {/* Placeholder Background (in case image doesn't exist) */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-100 to-white" />
-                  
-                  {/* Since we don't have images yet, we'll use a descriptive placeholder style */}
-                  <div className="absolute inset-0 flex items-center justify-center opacity-20 transition-opacity group-hover:opacity-10">
+                  {member.image_url ? (
                     <Image
-                      src="/speui.png"
-                      alt="SPE Logo placeholder"
-                      width={150}
-                      height={110}
-                      className="grayscale"
+                      src={member.image_url}
+                      alt={member.name}
+                      fill
+                      className="object-cover"
                     />
-                  </div>
+                  ) : (
+                    <>
+                      {/* Placeholder Background */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-blue-100 to-white" />
+                      <div className="absolute inset-0 flex items-center justify-center opacity-20 transition-opacity group-hover:opacity-10">
+                        <Image
+                          src="/speui.png"
+                          alt="SPE Logo placeholder"
+                          width={150}
+                          height={110}
+                          className="grayscale"
+                        />
+                      </div>
+                    </>
+                  )}
 
                   {/* Social Overlay on Hover */}
                   <div className="absolute inset-0 flex items-end justify-center pb-12 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                     <div className="flex gap-4 rounded-3xl bg-white/90 px-6 py-4 shadow-xl backdrop-blur-md">
-                      {member.socials.linkedin && (
-                        <a href={member.socials.linkedin} className="text-gray-900 transition-colors hover:text-blue-600">
+                      {member.linkedin && (
+                        <a href={member.linkedin} target="_blank" rel="noopener noreferrer" className="text-gray-900 transition-colors hover:text-blue-600">
                           <Linkedin className="h-5 w-5" />
                         </a>
                       )}
-                      {member.socials.twitter && (
-                        <a href={member.socials.twitter} className="text-gray-900 transition-colors hover:text-blue-400">
+                      {member.twitter && (
+                        <a href={member.twitter} target="_blank" rel="noopener noreferrer" className="text-gray-900 transition-colors hover:text-blue-400">
                           <Twitter className="h-5 w-5" />
                         </a>
                       )}
-                      {member.socials.email && (
-                        <a href={`mailto:${member.socials.email}`} className="text-gray-900 transition-colors hover:text-red-500">
+                      {member.email && (
+                        <a href={`mailto:${member.email}`} className="text-gray-900 transition-colors hover:text-red-500">
                           <Mail className="h-5 w-5" />
                         </a>
                       )}
@@ -164,32 +198,16 @@ export default function TeamPage() {
                   <p className="mt-2 text-sm font-bold uppercase tracking-widest text-blue-600">
                     {member.role}
                   </p>
-                  <p className="mt-4 text-gray-500 font-medium leading-relaxed px-4">
-                    {member.bio}
+                  <p className="mt-1 text-xs font-medium text-gray-400">
+                    {member.department}
                   </p>
                 </div>
               </motion.div>
             ))}
           </motion.div>
+          )}
 
-          {/* Join Us Call to Action */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            className="mt-32 rounded-[3.5rem] bg-blue-600 p-12 text-center text-white md:p-24"
-          >
-            <h2 className="text-[32px] font-bold leading-tight sm:text-5xl md:text-6xl">
-              Want to join our team?
-            </h2>
-            <p className="mx-auto mt-6 max-w-xl text-lg opacity-80 font-medium">
-              We're always looking for passionate students to volunteer and lead new initiatives.
-            </p>
-            <button className="mt-10 inline-flex items-center gap-2 rounded-2xl bg-white px-10 py-5 text-lg font-bold text-blue-600 transition-all hover:scale-105 active:scale-95">
-              Available Positions
-              <ArrowUpRight className="h-5 w-5" />
-            </button>
-          </motion.div>
+
         </div>
       </main>
 

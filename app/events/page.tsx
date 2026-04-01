@@ -1,14 +1,46 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
+
+interface EventItem {
+  id: string;
+  title: string;
+  date: string;
+  time: string;
+  location: string;
+  image_url: string | null;
+  status: string;
+  description: string;
+}
 
 export default function EventsPage() {
+  const [events, setEvents] = useState<EventItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
   // Dummy data for the gallery frames
   const galleryItemsRow1 = Array(8).fill(0);
   const galleryItemsRow2 = Array(8).fill(0);
+
+  useEffect(() => {
+    fetchEvents();
+  }, []);
+
+  const fetchEvents = async () => {
+    const { data } = await supabase
+      .from("events")
+      .select("id, title, date, time, location, image_url, status, description")
+      .in("status", ["Upcoming", "Completed"])
+      .order("created_at", { ascending: false });
+
+    setEvents(data || []);
+    setLoading(false);
+  };
 
   return (
     <div className="flex min-h-screen flex-col bg-black text-white selection:bg-blue-500 selection:text-white">
@@ -126,49 +158,91 @@ export default function EventsPage() {
           </div>
 
           <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 md:grid-cols-2">
-            {[
-              { title: "AmbiZero", img: "/ambizero.png" },
-              { title: "Industry Week", img: "/industry_week.png" },
-              { title: "Egbogah Lecture", img: "/egbogah.png" },
-              { title: "Freshers' Welcome", img: "/freshers_welcome.png" },
-            ].map((event, index) => (
+            {loading ? (
+              <div className="col-span-full flex items-center justify-center py-20">
+                <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
+              </div>
+            ) : events.length === 0 ? (
+              <div className="col-span-full flex flex-col items-center justify-center py-24 px-6">
+                <svg width="220" height="180" viewBox="0 0 220 180" fill="none" xmlns="http://www.w3.org/2000/svg" className="mb-8">
+                  {/* Calendar body */}
+                  <rect x="40" y="40" width="140" height="120" rx="16" fill="white" stroke="#E5E7EB" strokeWidth="2" />
+                  {/* Calendar header */}
+                  <rect x="40" y="40" width="140" height="36" rx="16" fill="#3B82F6" />
+                  <rect x="40" y="60" width="140" height="16" fill="#3B82F6" />
+                  {/* Binding rings */}
+                  <rect x="80" y="30" width="8" height="24" rx="4" fill="#2563EB" />
+                  <rect x="132" y="30" width="8" height="24" rx="4" fill="#2563EB" />
+                  {/* Calendar dots (dates) */}
+                  {[0, 1, 2, 3].map((col) =>
+                    [0, 1, 2].map((row) => (
+                      <circle
+                        key={`${col}-${row}`}
+                        cx={72 + col * 28}
+                        cy={96 + row * 22}
+                        r="5"
+                        fill={col === 2 && row === 1 ? "#3B82F6" : "#F3F4F6"}
+                      />
+                    ))
+                  )}
+                  {/* Clock */}
+                  <circle cx="170" cy="130" r="22" fill="#EFF6FF" stroke="#BFDBFE" strokeWidth="2" />
+                  <circle cx="170" cy="130" r="2" fill="#3B82F6" />
+                  <line x1="170" y1="130" x2="170" y2="118" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round" />
+                  <line x1="170" y1="130" x2="180" y2="130" stroke="#93C5FD" strokeWidth="2" strokeLinecap="round" />
+                  {/* Sparkles */}
+                  <path d="M30 70l3-8 3 8-8-3 8-3z" fill="#60A5FA" opacity="0.4" />
+                  <circle cx="200" cy="60" r="3" fill="#93C5FD" opacity="0.6" />
+                  <circle cx="35" cy="130" r="2.5" fill="#BFDBFE" opacity="0.7" />
+                  <path d="M195 100l2-6 2 6-6-2 6-2z" fill="#93C5FD" opacity="0.5" />
+                </svg>
+                <h3 className="text-xl font-bold text-gray-800 mb-2">No events scheduled</h3>
+                <p className="text-gray-400 text-sm max-w-xs text-center">We&apos;re planning something exciting. Stay tuned for upcoming events!</p>
+              </div>
+            ) : (
+              events.map((event, index) => (
               <motion.div
-                key={event.title}
+                key={event.id}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 viewport={{ once: true }}
                 className="group relative overflow-hidden rounded-[2.5rem] border border-gray-100 bg-[#F9FAFB] p-6 transition-all hover:shadow-xl sm:p-8"
               >
-                <div className="relative aspect-[5/4] w-full overflow-hidden rounded-[2rem]">
-                  <Image
-                    src={event.img}
-                    alt={event.title}
-                    fill
-                    className="object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
+                <div className="relative aspect-[5/4] w-full overflow-hidden rounded-[2rem] bg-gray-200">
+                  {event.image_url ? (
+                    <Image
+                      src={event.image_url}
+                      alt={event.title}
+                      fill
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-blue-50 to-gray-100">
+                      <span className="text-5xl font-black text-blue-200">{event.title.charAt(0)}</span>
+                    </div>
+                  )}
                 </div>
                 
-                <div className="mt-8 flex flex-col items-center gap-6">
+                <div className="mt-8 flex flex-col items-center gap-4">
                   <h3 className="text-3xl font-bold text-gray-900 sm:text-4xl">
                     {event.title}
                   </h3>
-                  
-                  <button className="flex items-center gap-3 rounded-full bg-[#171717] px-8 py-4 font-bold text-white transition-transform hover:scale-105 active:scale-95">
-                    <span>Learn More</span>
-                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white">
-                      <svg
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        className="h-3.5 w-3.5 stroke-[#171717] stroke-[3px]"
-                      >
-                        <path d="M5 12h14m-7-7 7 7-7 7" />
-                      </svg>
-                    </div>
-                  </button>
+                  <p className="text-sm font-semibold text-gray-400">
+                    {event.date} {event.time && `• ${event.time}`} {event.location && `• ${event.location}`}
+                  </p>
+                  {event.description && (
+                    <p className="text-sm text-gray-500 text-center line-clamp-2 max-w-md">{event.description}</p>
+                  )}
+                  <span className={`mt-2 rounded-full px-5 py-1.5 text-xs font-bold uppercase tracking-widest ${
+                    event.status === 'Upcoming' ? 'bg-green-50 text-green-600 border border-green-100' : 'bg-gray-100 text-gray-500 border border-gray-200'
+                  }`}>
+                    {event.status}
+                  </span>
                 </div>
               </motion.div>
-            ))}
+              ))
+            )}
           </div>
         </div>
       </section>
@@ -230,14 +304,14 @@ export default function EventsPage() {
                 <p className="max-w-xs text-base leading-relaxed text-gray-300 md:text-lg">
                   Invest in future energy leaders while gaining visibility within a growing professional community.
                 </p>
-                <button className="flex items-center gap-4 rounded-full bg-[#2563eb] px-8 py-4 font-bold text-white transition-all hover:bg-blue-600 hover:shadow-[0_0_20px_rgba(37,99,235,0.4)]">
+                <Link href="/programs/sponsor" className="flex items-center gap-4 rounded-full bg-[#2563eb] px-8 py-4 font-bold text-white transition-all hover:bg-blue-600 hover:shadow-[0_0_20px_rgba(37,99,235,0.4)]">
                   <span>Get Involved</span>
                   <div className="flex h-7 w-7 items-center justify-center rounded-full bg-black">
                     <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4 stroke-white stroke-[3px]">
                       <path d="M5 12h14m-7-7 7 7-7 7" />
                     </svg>
                   </div>
-                </button>
+                </Link>
               </div>
             </div>
           </div>
@@ -256,14 +330,14 @@ export default function EventsPage() {
               <p className="max-w-md text-base font-medium text-gray-900 md:text-xl">
                 Stay informed about upcoming events, schedules, and registration details through:
               </p>
-              <button className="flex items-center gap-6 rounded-full bg-[#2563eb] px-8 py-4 text-lg font-bold text-white transition-all hover:bg-black group sm:px-10 sm:py-5 sm:text-xl">
+              <a href="/membership" className="flex items-center gap-6 rounded-full bg-[#2563eb] px-8 py-4 text-lg font-bold text-white transition-all hover:bg-black group sm:px-10 sm:py-5 sm:text-xl">
                 <span>Join SPE</span>
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-black transition-colors group-hover:bg-blue-600 sm:h-9 sm:w-9">
                   <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4 stroke-white stroke-[3px] sm:h-5 sm:w-5">
                     <path d="M5 12h14m-7-7 7 7-7 7" />
                   </svg>
                 </div>
-              </button>
+              </a>
             </div>
 
             <div className="relative w-full lg:w-1/2 mt-12 lg:mt-0">

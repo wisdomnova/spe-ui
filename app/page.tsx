@@ -127,20 +127,23 @@ export default function Home() {
             transition={{ delay: 2, duration: 0.8 }}
             className="mt-12 flex flex-row items-center justify-center gap-3 sm:gap-5"
           >
-            <motion.button
+            <motion.a
+              href="/membership"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="h-[48px] w-[140px] cursor-pointer rounded-full bg-[#2563eb] text-[13px] font-bold text-white shadow-[0_10px_20px_rgba(37,99,235,0.2)] transition-shadow hover:shadow-[0_15px_30px_rgba(37,99,235,0.3)] sm:h-[52px] sm:w-[180px] sm:text-[15px]"
+              className="flex items-center justify-center h-[48px] w-[140px] cursor-pointer rounded-full bg-[#2563eb] text-[13px] font-bold text-white shadow-[0_10px_20px_rgba(37,99,235,0.2)] transition-shadow hover:shadow-[0_15px_30px_rgba(37,99,235,0.3)] sm:h-[52px] sm:w-[180px] sm:text-[15px]"
             >
               Join SPEUI
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="h-[48px] w-[140px] cursor-pointer rounded-full border border-[#2563eb] bg-transparent text-[13px] font-bold text-[#2563eb] transition-colors hover:bg-blue-50/50 sm:h-[52px] sm:w-[180px] sm:text-[15px]"
-            >
-              Explore Events
-            </motion.button>
+            </motion.a>
+            <Link href="/events">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="h-[48px] w-[140px] cursor-pointer rounded-full border border-[#2563eb] bg-transparent text-[13px] font-bold text-[#2563eb] transition-colors hover:bg-blue-50/50 sm:h-[52px] sm:w-[180px] sm:text-[15px]"
+              >
+                Explore Events
+              </motion.button>
+            </Link>
           </motion.div>
         </motion.div>
 
@@ -263,6 +266,7 @@ export default function Home() {
                 transition={{ duration: 0.8, delay: 0.5 }}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
+                onClick={() => window.location.href = '/membership'}
                 className="mt-10 flex h-[58px] items-center gap-4 cursor-pointer rounded-full bg-[#2a56eb] pl-8 pr-3 font-semibold text-white shadow-lg transition-colors hover:bg-blue-700"
               >
                 Join Us Today
@@ -317,6 +321,7 @@ export default function Home() {
                 transition={{ duration: 0.8, delay: 0.7 }}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
+                onClick={() => window.location.href = '/about'}
                 className="flex h-[58px] items-center gap-4 cursor-pointer rounded-full bg-[#2a56eb] pl-8 pr-3 font-semibold text-white shadow-lg transition-colors hover:bg-blue-700 shadow-[0_10px_20px_rgba(42,86,235,0.2)]"
               >
                 Learn More
@@ -481,6 +486,7 @@ export default function Home() {
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
+                    onClick={() => window.location.href = '/events'}
                     className="flex h-14 shrink-0 cursor-pointer items-center justify-center gap-3 whitespace-nowrap rounded-full bg-black px-8 text-base font-bold tracking-wide text-white shadow-2xl transition-all sm:h-16 sm:gap-4 sm:px-12 sm:text-[18px]"
                   >
                     View Events
@@ -657,7 +663,8 @@ export default function Home() {
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
             >
-              <motion.button
+              <motion.a
+                href="/about"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className="flex h-16 cursor-pointer items-center gap-4 rounded-full bg-[#2a56eb] pl-8 pr-3 text-lg font-bold text-white shadow-[0_20px_40px_rgba(42,86,235,0.3)] transition-all hover:bg-blue-700 sm:h-[72px] sm:gap-6 sm:pl-10 sm:pr-4 sm:text-xl"
@@ -666,7 +673,7 @@ export default function Home() {
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-black sm:h-12 sm:w-12">
                   <ArrowRight className="h-5 w-5 text-white sm:h-6 sm:w-6" />
                 </div>
-              </motion.button>
+              </motion.a>
             </motion.div>
           </div>
         </div>

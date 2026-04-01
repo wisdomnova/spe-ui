@@ -5,6 +5,9 @@ import Footer from "@/components/Footer";
 
 export default function SponsorPage() {
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
+  const [formData, setFormData] = useState({ name: "", email: "", organization: "" });
   
   return (
     <div className="flex min-h-screen flex-col bg-[#F8FAFF] font-sans text-black overflow-x-hidden">
@@ -73,21 +76,42 @@ export default function SponsorPage() {
                     <h2 className="text-3xl font-bold text-gray-900 mb-2">Get Brochure</h2>
                     <p className="text-gray-500 font-medium mb-8">Enter your details to receive our 2024/25 sponsorship package.</p>
                     
-                    <form onSubmit={(e) => { e.preventDefault(); setIsSubmitted(true); }} className="flex flex-col gap-5">
+                    <form onSubmit={async (e) => {
+                      e.preventDefault();
+                      setError("");
+                      setIsSubmitting(true);
+                      try {
+                        const res = await fetch("/api/sponsor", {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify(formData),
+                        });
+                        if (!res.ok) {
+                          const data = await res.json();
+                          throw new Error(data.error || "Something went wrong");
+                        }
+                        setIsSubmitted(true);
+                      } catch (err: any) {
+                        setError(err.message || "Failed to submit. Please try again.");
+                      } finally {
+                        setIsSubmitting(false);
+                      }
+                    }} className="flex flex-col gap-5">
                       <div className="flex flex-col gap-2">
                         <label className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] pl-2">Full Name</label>
-                        <input required type="text" placeholder="John Doe" className="h-14 w-full rounded-2xl bg-[#F8FAFF] px-6 font-medium outline-none border border-transparent focus:border-blue-100 focus:bg-white transition-all placeholder:text-gray-300" />
+                        <input required type="text" placeholder="John Doe" value={formData.name} onChange={e => setFormData(d => ({ ...d, name: e.target.value }))} className="h-14 w-full rounded-2xl bg-[#F8FAFF] px-6 font-medium outline-none border border-transparent focus:border-blue-100 focus:bg-white transition-all placeholder:text-gray-300" />
                       </div>
                       <div className="flex flex-col gap-2">
                         <label className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] pl-2">Email Address</label>
-                        <input required type="email" placeholder="hr@company.com" className="h-14 w-full rounded-2xl bg-[#F8FAFF] px-6 font-medium outline-none border border-transparent focus:border-blue-100 focus:bg-white transition-all placeholder:text-gray-300" />
+                        <input required type="email" placeholder="hr@company.com" value={formData.email} onChange={e => setFormData(d => ({ ...d, email: e.target.value }))} className="h-14 w-full rounded-2xl bg-[#F8FAFF] px-6 font-medium outline-none border border-transparent focus:border-blue-100 focus:bg-white transition-all placeholder:text-gray-300" />
                       </div>
                       <div className="flex flex-col gap-2">
                         <label className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] pl-2">Organization</label>
-                        <input required type="text" placeholder="Company Ltd" className="h-14 w-full rounded-2xl bg-[#F8FAFF] px-6 font-medium outline-none border border-transparent focus:border-blue-100 focus:bg-white transition-all placeholder:text-gray-300" />
+                        <input required type="text" placeholder="Company Ltd" value={formData.organization} onChange={e => setFormData(d => ({ ...d, organization: e.target.value }))} className="h-14 w-full rounded-2xl bg-[#F8FAFF] px-6 font-medium outline-none border border-transparent focus:border-blue-100 focus:bg-white transition-all placeholder:text-gray-300" />
                       </div>
-                      <button className="mt-4 flex h-16 w-full items-center justify-center rounded-2xl bg-[#2563eb] text-lg font-bold text-white shadow-[0_10px_20px_rgba(37,99,235,0.2)] transition-all hover:bg-blue-600">
-                        Request Brochure
+                      {error && <p className="text-sm font-medium text-red-500">{error}</p>}
+                      <button disabled={isSubmitting} className="mt-4 flex h-16 w-full items-center justify-center rounded-2xl bg-[#2563eb] text-lg font-bold text-white shadow-[0_10px_20px_rgba(37,99,235,0.2)] transition-all hover:bg-blue-600 disabled:opacity-60">
+                        {isSubmitting ? "Submitting..." : "Request Brochure"}
                       </button>
                     </form>
                   </div>
