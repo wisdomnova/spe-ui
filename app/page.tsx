@@ -14,6 +14,13 @@ import Footer from "@/components/Footer";
 export default function Home() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [isTypingComplete, setIsTypingComplete] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useState(() => {
+    if (typeof window !== "undefined") {
+      setIsMounted(true);
+    }
+  });
 
   const sentence: Variants = {
     hidden: { opacity: 1 },
@@ -57,6 +64,54 @@ export default function Home() {
 
       {/* Hero Section */}
       <main className="relative flex flex-grow flex-col items-center overflow-hidden pt-32 sm:pt-40 lg:pt-52">
+        {/* Dynamic Background Elements */}
+        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+          {/* Subtle Mesh Gradient Blobs */}
+          <motion.div 
+            animate={{ 
+              x: [-100, 100, -100],
+              y: [-50, 50, -50],
+            }}
+            transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute -top-[10%] -left-[10%] h-[500px] w-[500px] rounded-full bg-blue-100/40 blur-[100px]"
+          />
+          <motion.div 
+            animate={{ 
+              x: [100, -100, 100],
+              y: [50, -50, 50],
+            }}
+            transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute top-[20%] -right-[10%] h-[400px] w-[400px] rounded-full bg-indigo-100/30 blur-[80px]"
+          />
+          
+          {/* Floating Data Nodes (Small blue dots) */}
+          {isMounted && [...Array(8)].map((_, i) => (
+            <motion.div
+              key={`node-${i}`}
+              initial={{ 
+                opacity: 0,
+                x: (10 + (i * 11)) + "%", 
+                y: (20 + (i * 7)) % 100 + "%" 
+              }}
+              animate={{ 
+                opacity: [0.2, 0.6, 0.2],
+                y: ["-10%", "110%"],
+              }}
+              transition={{ 
+                duration: 10 + (i % 3) * 4, 
+                repeat: Infinity, 
+                ease: "linear",
+                delay: i * 1.5
+              }}
+              className="absolute h-[6px] w-[6px] rounded-full bg-blue-400/40 blur-[1px]"
+            />
+          ))}
+
+          {/* Subtle Grid Pattern Overlay */}
+          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.06] contrast-125 brightness-100"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/30 to-white"></div>
+        </div>
+
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -169,8 +224,54 @@ export default function Home() {
               repeat: Infinity,
               ease: "easeInOut"
             }}
-            className="relative mx-auto max-w-[100vw] overflow-hidden sm:max-w-7xl"
+            className="group relative mx-auto max-w-[100vw] overflow-hidden sm:max-w-7xl"
           >
+            {/* Rig Lights / Overlays */}
+            <div className="absolute inset-0 z-10 pointer-events-none overflow-hidden">
+              {/* Pulsing Light 1 - Top Rig */}
+              <motion.div 
+                animate={{ opacity: [0.4, 0.8, 0.4] }}
+                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute top-[15%] left-[48%] h-4 w-4 rounded-full bg-blue-400 blur-md"
+              />
+              {/* Pulsing Light 2 - Side Platform */}
+              <motion.div 
+                animate={{ opacity: [0.3, 0.9, 0.3] }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+                className="absolute top-[35%] left-[32%] h-3 w-3 rounded-full bg-blue-300 blur-sm"
+              />
+              {/* Pulsing Light 3 - Base */}
+              <motion.div 
+                animate={{ opacity: [0.2, 0.7, 0.2] }}
+                transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+                className="absolute bottom-[25%] right-[35%] h-5 w-5 rounded-full bg-blue-500/30 blur-lg"
+              />
+
+              {/* Vertical Movement - Scanning / Energy Beam Effect */}
+              <motion.div 
+                animate={{ 
+                  y: ["0%", "400%", "0%"],
+                  opacity: [0, 0.3, 0]
+                }}
+                transition={{ 
+                  duration: 10, 
+                  repeat: Infinity, 
+                  ease: "linear"
+                }}
+                className="absolute top-[20%] left-[49.5%] h-24 w-[2px] bg-gradient-to-b from-transparent via-blue-400 to-transparent blur-[1px]"
+              />
+
+              {/* Subtle Ambient "Steam" / Atmosphere */}
+              <motion.div 
+                animate={{ 
+                  x: [-20, 20, -20],
+                  opacity: [0.1, 0.2, 0.1]
+                }}
+                transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute bottom-[10%] left-[20%] h-64 w-64 rounded-full bg-blue-200/20 blur-[80px]"
+              />
+            </div>
+
             <Image
               src="/rig.png"
               alt="Energy rig illustration"

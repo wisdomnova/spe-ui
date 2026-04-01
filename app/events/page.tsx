@@ -23,9 +23,41 @@ export default function EventsPage() {
   const [events, setEvents] = useState<EventItem[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Dummy data for the gallery frames
-  const galleryItemsRow1 = Array(8).fill(0);
-  const galleryItemsRow2 = Array(8).fill(0);
+  // Gallery images from events_scroll folder
+  const galleryRow1 = [
+    "/events_scroll/46.jpg",
+    "/events_scroll/49.jpg",
+    "/events_scroll/52.jpg",
+    "/events_scroll/53.jpg",
+    "/events_scroll/57.jpg",
+    "/events_scroll/59.jpg",
+    "/events_scroll/65.jpg",
+    "/events_scroll/67.jpg",
+    "/events_scroll/70.jpg",
+    "/events_scroll/72.jpg",
+    "/events_scroll/73.jpg",
+    "/events_scroll/74.jpg",
+    "/events_scroll/77.jpg",
+    "/events_scroll/78.jpg",
+    "/events_scroll/79.jpg",
+  ];
+  const galleryRow2 = [
+    "/events_scroll/80.jpg",
+    "/events_scroll/81.jpg",
+    "/events_scroll/83.jpg",
+    "/events_scroll/84.jpg",
+    "/events_scroll/85.jpg",
+    "/events_scroll/86.jpg",
+    "/events_scroll/87.jpg",
+    "/events_scroll/88.jpg",
+    "/events_scroll/89.jpg",
+    "/events_scroll/90.jpg",
+    "/events_scroll/92.jpg",
+    "/events_scroll/97.jpg",
+    "/events_scroll/116.jpg",
+    "/events_scroll/125.jpg",
+    "/events_scroll/oo.jpg",
+  ];
 
   useEffect(() => {
     fetchEvents();
@@ -109,14 +141,18 @@ export default function EventsPage() {
               }}
               className="flex gap-6 px-3 sm:gap-10 sm:px-5"
             >
-              {[...galleryItemsRow1, ...galleryItemsRow1].map((_, idx) => (
+              {[...galleryRow1, ...galleryRow1].map((src, idx) => (
                 <div
                   key={`row1-${idx}`}
-                  className="relative aspect-[4/3] w-[280px] flex-shrink-0 overflow-hidden rounded-[2rem] border-[6px] border-white/90 bg-gray-900 shadow-2xl sm:w-[450px] sm:border-[10px]"
+                  className="relative aspect-[4/3] w-[320px] flex-shrink-0 overflow-hidden rounded-[2rem] border-[6px] border-white/90 bg-gray-900 shadow-2xl sm:w-[520px] sm:border-[10px]"
                 >
-                  <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-gray-800 to-gray-950">
-                    <div className="h-full w-full bg-[radial-gradient(circle_at_center,_#2563eb_0%,_transparent_70%)] opacity-20" />
-                  </div>
+                  <Image
+                    src={src}
+                    alt="SPE event"
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 640px) 320px, 520px"
+                  />
                 </div>
               ))}
             </motion.div>
@@ -133,14 +169,18 @@ export default function EventsPage() {
               }}
               className="flex gap-6 px-3 sm:gap-10 sm:px-5"
             >
-              {[...galleryItemsRow2, ...galleryItemsRow2].map((_, idx) => (
+              {[...galleryRow2, ...galleryRow2].map((src, idx) => (
                 <div
                   key={`row2-${idx}`}
-                  className="relative aspect-[4/3] w-[280px] flex-shrink-0 overflow-hidden rounded-[2rem] border-[6px] border-white/90 bg-gray-900 shadow-2xl sm:w-[450px] sm:border-[10px]"
+                  className="relative aspect-[4/3] w-[320px] flex-shrink-0 overflow-hidden rounded-[2rem] border-[6px] border-white/90 bg-gray-900 shadow-2xl sm:w-[520px] sm:border-[10px]"
                 >
-                   <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-gray-800 to-gray-950">
-                    <div className="h-full w-full bg-[radial-gradient(circle_at_center,_#2563eb_0%,_transparent_70%)] opacity-20" />
-                  </div>
+                  <Image
+                    src={src}
+                    alt="SPE event"
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 640px) 320px, 520px"
+                  />
                 </div>
               ))}
             </motion.div>
