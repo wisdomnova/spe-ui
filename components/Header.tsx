@@ -57,9 +57,12 @@ export default function Header() {
             {navLinks.map((link) => {
               const isActive = link.href === "/" 
                 ? pathname === "/" 
-                : link.href !== "#" && pathname.startsWith(link.href);
+                : link.href !== "#" 
+                  ? pathname.startsWith(link.href)
+                  : link.dropdown?.some((d) => pathname.startsWith(d.href)) ?? false;
               
               if (link.dropdown) {
+                const activeChild = link.dropdown.find((d) => pathname.startsWith(d.href));
                 return (
                   <div
                     key={link.name}
@@ -69,12 +72,19 @@ export default function Header() {
                   >
                     <button
                       className={`flex items-center gap-1 text-[15px] font-semibold transition-colors hover:text-blue-600 cursor-pointer ${
-                        activeDropdown === link.name ? "text-blue-600" : "text-gray-800"
+                        activeDropdown === link.name
+                          ? "text-blue-600"
+                          : isActive
+                            ? "text-blue-600"
+                            : "text-gray-800"
                       }`}
                     >
                       {link.name}
                       <ChevronDown className={`h-4 w-4 transition-transform ${activeDropdown === link.name ? "rotate-180" : ""}`} />
                     </button>
+                    {isActive && (
+                      <span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-blue-600" />
+                    )}
                     
                     <AnimatePresence>
                       {activeDropdown === link.name && (
@@ -84,15 +94,22 @@ export default function Header() {
                           exit={{ opacity: 0, y: 10 }}
                           className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-48 rounded-xl border border-white/20 bg-white/90 p-2 shadow-xl backdrop-blur-xl"
                         >
-                          {link.dropdown.map((item) => (
-                            <Link
-                              key={item.name}
-                              href={item.href}
-                              className="block rounded-lg px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-blue-600"
-                            >
-                              {item.name}
-                            </Link>
-                          ))}
+                          {link.dropdown.map((item) => {
+                            const isItemActive = pathname.startsWith(item.href);
+                            return (
+                              <Link
+                                key={item.name}
+                                href={item.href}
+                                className={`block rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+                                  isItemActive
+                                    ? "bg-blue-50 text-blue-600 font-bold"
+                                    : "text-gray-700 hover:bg-gray-100 hover:text-blue-600"
+                                }`}
+                              >
+                                {item.name}
+                              </Link>
+                            );
+                          })}
                         </motion.div>
                       )}
                     </AnimatePresence>
@@ -104,11 +121,14 @@ export default function Header() {
                 <Link
                   key={link.name}
                   href={link.href}
-                  className={`text-[15px] font-semibold transition-colors hover:text-blue-600 cursor-pointer ${
-                    isActive ? "text-black border-b-2 border-black pb-0.5" : "text-gray-800"
+                  className={`relative text-[15px] font-semibold transition-colors hover:text-blue-600 cursor-pointer ${
+                    isActive ? "text-blue-600" : "text-gray-800"
                   }`}
                 >
                   {link.name}
+                  {isActive && (
+                    <span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-blue-600" />
+                  )}
                 </Link>
               );
             })}
@@ -137,35 +157,46 @@ export default function Header() {
             className="fixed inset-0 z-40 bg-white pt-32 px-6 md:hidden overflow-y-auto"
           >
             <nav className="flex flex-col gap-6">
-              {navLinks.map((link) => (
+              {navLinks.map((link) => {
+                const isMobileActive = link.href === "/"
+                  ? pathname === "/"
+                  : link.href !== "#"
+                    ? pathname.startsWith(link.href)
+                    : link.dropdown?.some((d) => pathname.startsWith(d.href)) ?? false;
+
+                return (
                 <div key={link.name}>
                   {link.dropdown ? (
                     <div className="flex flex-col gap-4">
-                      <span className="text-3xl font-bold text-gray-400">{link.name}</span>
+                      <span className={`text-3xl font-bold ${isMobileActive ? "text-blue-600" : "text-gray-400"}`}>{link.name}</span>
                       <div className="flex flex-col gap-4 pl-4 border-l-2 border-gray-100">
-                        {link.dropdown.map((item) => (
+                        {link.dropdown.map((item) => {
+                          const isItemActive = pathname.startsWith(item.href);
+                          return (
                           <Link
                             key={item.name}
                             href={item.href}
                             onClick={() => setIsOpen(false)}
-                            className="text-2xl font-bold text-gray-900 cursor-pointer"
+                            className={`text-2xl font-bold cursor-pointer ${isItemActive ? "text-blue-600" : "text-gray-900"}`}
                           >
                             {item.name}
                           </Link>
-                        ))}
+                          );
+                        })}
                       </div>
                     </div>
                   ) : (
                     <Link
                       href={link.href}
                       onClick={() => setIsOpen(false)}
-                      className="text-3xl font-bold text-gray-900 cursor-pointer"
+                      className={`text-3xl font-bold cursor-pointer ${isMobileActive ? "text-blue-600" : "text-gray-900"}`}
                     >
                       {link.name}
                     </Link>
                   )}
                 </div>
-              ))}
+                );
+              })}
               <div className="mt-8 flex flex-col gap-4 pb-10">
                 <button className="h-[60px] w-full cursor-pointer rounded-2xl bg-[#2563eb] text-lg font-bold text-white shadow-lg">
                   Join SPEUI
