@@ -8,14 +8,15 @@ import {
   Linkedin,
   Twitter,
   Youtube,
+  Instagram
 } from "lucide-react";
 
 export default function Footer() {
   const socialLinks = [
-    { name: "Twitter", href: "#", icon: Twitter },
-    { name: "LinkedIn", href: "#", icon: Linkedin },
-    { name: "Facebook", href: "#", icon: Facebook },
-    { name: "YouTube", href: "#", icon: Youtube },
+    { name: "Twitter", href: "https://x.com/Spe_ui_?s=20", icon: Twitter },
+    { name: "LinkedIn", href: "https://www.linkedin.com/company/spe-ui/", icon: Linkedin },
+    { name: "YouTube", href: "https://www.youtube.com/@SPE_UI", icon: Youtube },
+    { name: "Instagram", href: "https://www.instagram.com/speui_", icon: Instagram}
   ];
 
   return (
