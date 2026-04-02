@@ -666,7 +666,7 @@ function VogelIPR() {
     const qMax = QT / vogelRatio;
 
     const curve = [];
-    for (let i = 0; i <= 50; i++) {
+    for (let i = 50; i >= 0; i--) {
       const pwf = (PR * i) / 50;
       const r = pwf / PR;
       const qo = qMax * (1 - 0.2 * r - 0.8 * r * r);
@@ -692,13 +692,13 @@ function VogelIPR() {
               <XAxis
                 dataKey="qo"
                 type="number"
+                domain={[0, "auto"]}
                 label={{ value: "Flow Rate (bbl/day)", position: "bottom", offset: 0, style: { fontSize: 11, fontWeight: 700, fill: "#9ca3af" } }}
                 tick={{ fontSize: 11, fill: "#9ca3af" }}
               />
               <YAxis
                 dataKey="pwf"
                 type="number"
-                reversed
                 domain={[0, "auto"]}
                 label={{ value: "Pwf (psi)", angle: -90, position: "insideLeft", offset: 10, style: { fontSize: 11, fontWeight: 700, fill: "#9ca3af" } }}
                 tick={{ fontSize: 11, fill: "#9ca3af" }}
