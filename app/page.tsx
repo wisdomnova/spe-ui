@@ -188,7 +188,7 @@ export default function Home() {
               whileTap={{ scale: 0.95 }}
               className="flex items-center justify-center h-[48px] w-[140px] cursor-pointer rounded-full bg-[#2563eb] text-[13px] font-bold text-white shadow-[0_10px_20px_rgba(37,99,235,0.2)] transition-shadow hover:shadow-[0_15px_30px_rgba(37,99,235,0.3)] sm:h-[52px] sm:w-[180px] sm:text-[15px]"
             >
-              Join SPEUI
+              Join SPE
             </motion.a>
             <Link href="/events">
               <motion.button
