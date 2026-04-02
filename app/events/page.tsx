@@ -6,7 +6,6 @@ import { motion } from "framer-motion";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
 
 interface EventItem {
   id: string;
@@ -64,14 +63,15 @@ export default function EventsPage() {
   }, []);
 
   const fetchEvents = async () => {
-    const { data } = await supabase
-      .from("events")
-      .select("id, title, date, time, location, image_url, status, description")
-      .in("status", ["Upcoming", "Completed"])
-      .order("created_at", { ascending: false });
-
-    setEvents(data || []);
-    setLoading(false);
+    try {
+      const res = await fetch("/api/events");
+      if (res.ok) {
+        const data = await res.json();
+        setEvents(data);
+      }
+    } catch {} finally {
+      setLoading(false);
+    }
   };
 
   return (
