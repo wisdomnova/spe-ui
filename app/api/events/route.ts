@@ -4,7 +4,7 @@ import { getSupabaseServer } from "@/lib/supabase-server";
 export const dynamic = "force-dynamic";
 
 /**
- * GET /api/events - public events list (Upcoming + Completed)
+ * GET /api/events - public events list (Upcoming + Ongoing + Completed)
  * Uses service_role to bypass RLS.
  */
 export async function GET() {
@@ -12,8 +12,8 @@ export async function GET() {
     const supabaseServer = getSupabaseServer();
     const { data, error } = await supabaseServer
       .from("events")
-      .select("id, title, date, time, location, image_url, status, description")
-      .in("status", ["Upcoming", "Completed"])
+      .select("id, title, date, time, location, image_url, event_link, status, description")
+      .in("status", ["Upcoming", "Ongoing", "Completed"])
       .order("created_at", { ascending: false });
 
     if (error) {
