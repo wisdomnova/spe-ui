@@ -48,6 +48,12 @@ export default function BlogSlugPage() {
       setNotFound(true);
     } else {
       setPost(data);
+      // Track the view (fire-and-forget)
+      fetch("/api/blog-views", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ blog_id: data.id, slug: data.slug }),
+      }).catch(() => {});
     }
     setLoading(false);
   };

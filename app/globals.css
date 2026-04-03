@@ -40,7 +40,11 @@ article.prose img[width] {
   height: auto;
 }
 
-/* ── Blog paragraph spacing ── */
+/* ── Blog paragraph spacing & whitespace ── */
+article.prose {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
 article.prose p {
   margin-bottom: 1.25em;
 }
