@@ -4,9 +4,10 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { ThumbsUp } from "lucide-react";
 
 interface BlogPost {
   id: string;
@@ -30,6 +31,20 @@ export default function BlogSlugPage() {
   const [post, setPost] = useState<BlogPost | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [likes, setLikes] = useState(0);
+  const [liked, setLiked] = useState(false);
+  const [likeLoading, setLikeLoading] = useState(false);
+
+  // Generate a stable fingerprint for this browser
+  const getFingerprint = useCallback(() => {
+    const key = "spe_fp";
+    let fp = localStorage.getItem(key);
+    if (!fp) {
+      fp = crypto.randomUUID();
+      localStorage.setItem(key, fp);
+    }
+    return fp;
+  }, []);
 
   useEffect(() => {
     if (!params?.slug) return;
@@ -54,8 +69,51 @@ export default function BlogSlugPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ blog_id: data.id, slug: data.slug }),
       }).catch(() => {});
+      // Fetch like count + check if this user already liked
+      fetchLikes(data.id);
     }
     setLoading(false);
+  };
+
+  const fetchLikes = async (blogId: string) => {
+    try {
+      const res = await fetch(`/api/blog-likes?blog_id=${blogId}`);
+      if (res.ok) {
+        const d = await res.json();
+        setLikes(d.likes || 0);
+      }
+    } catch {}
+    // Check localStorage for existing like
+    const likedBlogs: string[] = JSON.parse(localStorage.getItem("spe_liked_blogs") || "[]");
+    setLiked(likedBlogs.includes(blogId));
+  };
+
+  const handleLike = async () => {
+    if (!post || likeLoading) return;
+    setLikeLoading(true);
+    try {
+      const fp = getFingerprint();
+      const res = await fetch("/api/blog-likes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ blog_id: post.id, slug: post.slug, fingerprint: fp }),
+      });
+      if (res.ok) {
+        const d = await res.json();
+        setLikes(d.likes);
+        setLiked(d.liked);
+        // Persist in localStorage
+        const likedBlogs: string[] = JSON.parse(localStorage.getItem("spe_liked_blogs") || "[]");
+        if (d.liked) {
+          if (!likedBlogs.includes(post.id)) likedBlogs.push(post.id);
+        } else {
+          const idx = likedBlogs.indexOf(post.id);
+          if (idx >= 0) likedBlogs.splice(idx, 1);
+        }
+        localStorage.setItem("spe_liked_blogs", JSON.stringify(likedBlogs));
+      }
+    } catch {}
+    setLikeLoading(false);
   };
 
   const formatDate = (dateStr: string) => {
@@ -114,6 +172,17 @@ export default function BlogSlugPage() {
 
       <main className="flex-grow pt-32 pb-24 md:pt-44 md:px-0">
         <div className="container mx-auto px-6 max-w-5xl">
+          {/* Back Button */}
+          <a
+            href="/blog"
+            className="inline-flex items-center gap-2 text-sm font-bold text-gray-400 hover:text-blue-600 transition-colors mb-8"
+          >
+            <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4 stroke-current stroke-[2.5px]">
+              <path d="M19 12H5m7-7-7 7 7 7" />
+            </svg>
+            Back to Blog
+          </a>
+
           {/* Header Section */}
           <div className="flex flex-col gap-6">
             <motion.h1
@@ -206,6 +275,29 @@ export default function BlogSlugPage() {
               prose-blockquote:border-l-blue-600 prose-blockquote:text-gray-600"
             dangerouslySetInnerHTML={{ __html: processContent(post.content) }}
           />
+
+          {/* Like Button */}
+          <div className="mt-16 flex items-center justify-center">
+            <motion.button
+              onClick={handleLike}
+              disabled={likeLoading}
+              whileTap={{ scale: 0.9 }}
+              className={`group flex items-center gap-3 px-8 py-4 rounded-full border-2 transition-all duration-300 ${
+                liked
+                  ? "bg-blue-600 border-blue-600 text-white shadow-xl shadow-blue-200"
+                  : "bg-white border-gray-200 text-gray-500 hover:border-blue-300 hover:text-blue-600 hover:shadow-lg"
+              }`}
+            >
+              <ThumbsUp
+                size={22}
+                className={`transition-transform duration-300 ${liked ? "fill-white" : "group-hover:scale-110"}`}
+                fill={liked ? "currentColor" : "none"}
+              />
+              <span className="text-lg font-bold">
+                {likes > 0 ? likes.toLocaleString() : "Like"}
+              </span>
+            </motion.button>
+          </div>
         </div>
       </main>
 
