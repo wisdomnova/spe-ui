@@ -7,7 +7,7 @@ import Footer from "@/components/Footer";
 import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { ThumbsUp, Share2 } from "lucide-react";
+import { ThumbsUp, Share2, Sparkles, Gamepad2, Calculator, Compass, StickyNote, Zap, Smile } from "lucide-react";
 
 interface BlogPost {
   id: string;
@@ -177,7 +177,7 @@ export default function BlogSlugPage() {
       <Header />
 
       <main className="flex-grow pt-32 pb-24 md:pt-44 md:px-0">
-        <div className="container mx-auto px-6 max-w-5xl">
+        <div className="container mx-auto px-6 max-w-7xl">
           {/* Back Button */}
           <a
             href="/blog"
@@ -272,55 +272,73 @@ export default function BlogSlugPage() {
             </motion.div>
           )}
 
-          {/* Body Content - rendered exactly as designed in admin */}
-          <article 
-            className="mt-16 prose prose-lg prose-gray max-w-none text-lg font-medium leading-relaxed text-gray-700
-              prose-headings:text-gray-900 prose-headings:font-bold
-              prose-a:text-blue-600 prose-a:font-semibold
-              prose-img:rounded-2xl prose-img:shadow-lg
-              prose-blockquote:border-l-blue-600 prose-blockquote:text-gray-600"
-            dangerouslySetInnerHTML={{ __html: processContent(post.content) }}
-          />
-
-          {/* Like & Share Buttons */}
-          <div className="mt-16 flex items-center justify-center gap-4">
-            <motion.button
-              onClick={handleLike}
-              disabled={likeLoading}
-              whileTap={{ scale: 0.9 }}
-              className={`group flex items-center gap-3 px-8 py-4 rounded-full border-2 transition-all duration-300 ${
-                liked
-                  ? "bg-blue-600 border-blue-600 text-white shadow-xl shadow-blue-200"
-                  : "bg-white border-gray-200 text-gray-500 hover:border-blue-300 hover:text-blue-600 hover:shadow-lg"
-              }`}
-            >
-              <ThumbsUp
-                size={22}
-                className={`transition-transform duration-300 ${liked ? "fill-white" : "group-hover:scale-110"}`}
-                fill={liked ? "currentColor" : "none"}
+          {/* Body + Sidebar Layout */}
+          <div className="mt-16 flex gap-10 lg:gap-14">
+            {/* Main Content Column */}
+            <div className="flex-1 min-w-0">
+              {/* Body Content - rendered exactly as designed in admin */}
+              <article 
+                className="prose prose-lg prose-gray max-w-none text-lg font-medium leading-relaxed text-gray-700
+                  prose-headings:text-gray-900 prose-headings:font-bold
+                  prose-a:text-blue-600 prose-a:font-semibold
+                  prose-img:rounded-2xl prose-img:shadow-lg
+                  prose-blockquote:border-l-blue-600 prose-blockquote:text-gray-600"
+                dangerouslySetInnerHTML={{ __html: processContent(post.content) }}
               />
-              <span className="text-lg font-bold">
-                {likes > 0 ? likes.toLocaleString() : "Like"}
-              </span>
-            </motion.button>
 
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              onClick={() => {
-                const url = window.location.href;
-                if (navigator.share) {
-                  navigator.share({ title: post.title, text: post.description, url }).catch(() => {});
-                } else {
-                  navigator.clipboard.writeText(url);
-                  const btn = document.getElementById("share-toast");
-                  if (btn) { btn.textContent = "Link copied!"; setTimeout(() => { btn.textContent = "Share"; }, 2000); }
-                }
-              }}
-              className="group flex items-center gap-3 px-8 py-4 rounded-full border-2 border-gray-200 bg-white text-gray-500 hover:border-blue-300 hover:text-blue-600 hover:shadow-lg transition-all duration-300"
-            >
-              <Share2 size={22} className="transition-transform duration-300 group-hover:scale-110" />
-              <span id="share-toast" className="text-lg font-bold">Share</span>
-            </motion.button>
+              {/* Like & Share Buttons */}
+              <div className="mt-16 flex items-center justify-center gap-4">
+                <motion.button
+                  onClick={handleLike}
+                  disabled={likeLoading}
+                  whileTap={{ scale: 0.9 }}
+                  className={`group flex items-center gap-3 px-8 py-4 rounded-full border-2 transition-all duration-300 ${
+                    liked
+                      ? "bg-blue-600 border-blue-600 text-white shadow-xl shadow-blue-200"
+                      : "bg-white border-gray-200 text-gray-500 hover:border-blue-300 hover:text-blue-600 hover:shadow-lg"
+                  }`}
+                >
+                  <ThumbsUp
+                    size={22}
+                    className={`transition-transform duration-300 ${liked ? "fill-white" : "group-hover:scale-110"}`}
+                    fill={liked ? "currentColor" : "none"}
+                  />
+                  <span className="text-lg font-bold">
+                    {likes > 0 ? likes.toLocaleString() : "Like"}
+                  </span>
+                </motion.button>
+
+                <motion.button
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => {
+                    const url = window.location.href;
+                    if (navigator.share) {
+                      navigator.share({ title: post.title, text: post.description, url }).catch(() => {});
+                    } else {
+                      navigator.clipboard.writeText(url);
+                      const btn = document.getElementById("share-toast");
+                      if (btn) { btn.textContent = "Link copied!"; setTimeout(() => { btn.textContent = "Share"; }, 2000); }
+                    }
+                  }}
+                  className="group flex items-center gap-3 px-8 py-4 rounded-full border-2 border-gray-200 bg-white text-gray-500 hover:border-blue-300 hover:text-blue-600 hover:shadow-lg transition-all duration-300"
+                >
+                  <Share2 size={22} className="transition-transform duration-300 group-hover:scale-110" />
+                  <span id="share-toast" className="text-lg font-bold">Share</span>
+                </motion.button>
+              </div>
+            </div>
+
+            {/* Desktop Sidebar */}
+            <aside className="hidden lg:block w-[300px] shrink-0">
+              <div className="sticky top-36">
+                <ResourcesSidebar />
+              </div>
+            </aside>
+          </div>
+
+          {/* Mobile Resources Ad */}
+          <div className="lg:hidden mt-16">
+            <ResourcesSidebar />
           </div>
         </div>
       </main>
@@ -360,6 +378,59 @@ export default function BlogSlugPage() {
       </section>
 
       <Footer />
+    </div>
+  );
+}
+
+/* ── Resources Sidebar Ad ── */
+const RESOURCE_ITEMS = [
+  { title: "PetroCalc Suite", desc: "5 engineering calculators", href: "/programs/resources/petro-calc", icon: Calculator, color: "text-blue-600 bg-blue-50" },
+  { title: "Career Compass", desc: "Explore 20+ career paths", href: "/programs/resources/career-compass", icon: Compass, color: "text-emerald-600 bg-emerald-50" },
+  { title: "Sticky Wall", desc: "Community message board", href: "/programs/resources/sticky-wall", icon: StickyNote, color: "text-amber-600 bg-amber-50" },
+  { title: "Reaction Test", desc: "Test your reflexes", href: "/programs/resources/reaction-test", icon: Zap, color: "text-rose-600 bg-rose-50" },
+  { title: "Emoji Decode", desc: "Crack the emoji code", href: "/programs/resources/emoji-decode", icon: Smile, color: "text-violet-600 bg-violet-50" },
+];
+
+function ResourcesSidebar() {
+  return (
+    <div className="rounded-3xl border border-gray-100 bg-gradient-to-b from-white to-gray-50/50 p-6 shadow-sm">
+      <div className="flex items-center gap-2.5 mb-5">
+        <div className="p-2 rounded-xl bg-indigo-50">
+          <Sparkles size={16} className="text-indigo-600" />
+        </div>
+        <div>
+          <p className="text-xs font-black text-gray-900 uppercase tracking-widest">Interactive Tools</p>
+          <p className="text-[10px] font-medium text-gray-400">Built for SPE members</p>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        {RESOURCE_ITEMS.map((item) => (
+          <a
+            key={item.href}
+            href={item.href}
+            className="group flex items-center gap-3 p-3 rounded-2xl hover:bg-white hover:shadow-md transition-all"
+          >
+            <div className={`p-2 rounded-xl shrink-0 ${item.color}`}>
+              <item.icon size={16} />
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-bold text-gray-900 group-hover:text-blue-600 transition-colors truncate">
+                {item.title}
+              </p>
+              <p className="text-[11px] font-medium text-gray-400 truncate">{item.desc}</p>
+            </div>
+          </a>
+        ))}
+      </div>
+
+      <a
+        href="/programs/resources"
+        className="mt-5 flex items-center justify-center gap-2 w-full py-3 rounded-2xl bg-indigo-600 text-white text-sm font-bold hover:bg-indigo-700 transition-colors"
+      >
+        <Gamepad2 size={16} />
+        Explore All Resources
+      </a>
     </div>
   );
 }
