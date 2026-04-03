@@ -84,6 +84,24 @@ export default function BlogSlugPage() {
     );
   }
 
+  /**
+   * Process blog HTML for public display:
+   *  - Empty paragraphs get a <br> so they keep their height
+   *  - Images with data-caption are wrapped in <figure>+<figcaption>
+   */
+  const processContent = (html: string) => {
+    // Fix collapsed empty paragraphs
+    let processed = html.replace(/<p><\/p>/g, '<p><br></p>');
+
+    // Wrap captioned images: <img … data-caption="…"> → <figure>…<figcaption>
+    processed = processed.replace(
+      /<img\s([^>]*?)data-caption="([^"]*)"([^>]*?)\/?>/g,
+      '<figure class="image-figure" data-type="image"><img $1$3><figcaption>$2</figcaption></figure>'
+    );
+
+    return processed;
+  };
+
   return (
     <div className="flex min-h-screen flex-col bg-white font-sans text-black">
       <Header />
@@ -180,7 +198,7 @@ export default function BlogSlugPage() {
               prose-a:text-blue-600 prose-a:font-semibold
               prose-img:rounded-2xl prose-img:shadow-lg
               prose-blockquote:border-l-blue-600 prose-blockquote:text-gray-600"
-            dangerouslySetInnerHTML={{ __html: post.content }}
+            dangerouslySetInnerHTML={{ __html: processContent(post.content) }}
           />
         </div>
       </main>

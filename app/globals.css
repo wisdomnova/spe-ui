@@ -39,3 +39,28 @@ article.prose img[width] {
   margin-right: auto;
   height: auto;
 }
+
+/* ── Blog paragraph spacing ── */
+article.prose p {
+  margin-bottom: 1.25em;
+}
+article.prose p:empty {
+  min-height: 1.5em;
+}
+
+/* ── Blog image captions (<figure> wrapper) ── */
+article.prose figure.image-figure {
+  margin: 2rem auto;
+  text-align: center;
+}
+article.prose figure.image-figure img {
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 1rem;
+}
+article.prose figure.image-figure figcaption {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  font-style: italic;
+  color: #6b7280;
+}
