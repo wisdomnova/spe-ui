@@ -7,7 +7,7 @@ import Footer from "@/components/Footer";
 import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { ThumbsUp } from "lucide-react";
+import { ThumbsUp, Share2 } from "lucide-react";
 
 interface BlogPost {
   id: string;
@@ -63,11 +63,17 @@ export default function BlogSlugPage() {
       setNotFound(true);
     } else {
       setPost(data);
-      // Track the view (fire-and-forget)
+      // Track the view with fingerprint for unique visitor tracking
+      const fp = (() => {
+        const key = "spe_fp";
+        let f = localStorage.getItem(key);
+        if (!f) { f = crypto.randomUUID(); localStorage.setItem(key, f); }
+        return f;
+      })();
       fetch("/api/blog-views", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ blog_id: data.id, slug: data.slug }),
+        body: JSON.stringify({ blog_id: data.id, slug: data.slug, fingerprint: fp }),
       }).catch(() => {});
       // Fetch like count + check if this user already liked
       fetchLikes(data.id);
@@ -276,8 +282,8 @@ export default function BlogSlugPage() {
             dangerouslySetInnerHTML={{ __html: processContent(post.content) }}
           />
 
-          {/* Like Button */}
-          <div className="mt-16 flex items-center justify-center">
+          {/* Like & Share Buttons */}
+          <div className="mt-16 flex items-center justify-center gap-4">
             <motion.button
               onClick={handleLike}
               disabled={likeLoading}
@@ -296,6 +302,24 @@ export default function BlogSlugPage() {
               <span className="text-lg font-bold">
                 {likes > 0 ? likes.toLocaleString() : "Like"}
               </span>
+            </motion.button>
+
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              onClick={() => {
+                const url = window.location.href;
+                if (navigator.share) {
+                  navigator.share({ title: post.title, text: post.description, url }).catch(() => {});
+                } else {
+                  navigator.clipboard.writeText(url);
+                  const btn = document.getElementById("share-toast");
+                  if (btn) { btn.textContent = "Link copied!"; setTimeout(() => { btn.textContent = "Share"; }, 2000); }
+                }
+              }}
+              className="group flex items-center gap-3 px-8 py-4 rounded-full border-2 border-gray-200 bg-white text-gray-500 hover:border-blue-300 hover:text-blue-600 hover:shadow-lg transition-all duration-300"
+            >
+              <Share2 size={22} className="transition-transform duration-300 group-hover:scale-110" />
+              <span id="share-toast" className="text-lg font-bold">Share</span>
             </motion.button>
           </div>
         </div>

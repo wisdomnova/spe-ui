@@ -7,7 +7,7 @@ import { supabase } from "@/lib/supabase";
  */
 export async function POST(req: NextRequest) {
   try {
-    const { blog_id, slug } = await req.json();
+    const { blog_id, slug, fingerprint } = await req.json();
 
     if (!blog_id || !slug) {
       return NextResponse.json({ error: "blog_id and slug are required" }, { status: 400 });
@@ -26,7 +26,8 @@ export async function POST(req: NextRequest) {
       slug,
       referrer: referrer || null,
       device,
-      user_agent: ua.substring(0, 500), // Truncate long UAs
+      user_agent: ua.substring(0, 500),
+      fingerprint: fingerprint || null,
     });
 
     if (error) {
