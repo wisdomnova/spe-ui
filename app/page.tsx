@@ -7,20 +7,19 @@ import {
   ArrowRight,
   Plus,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import NewsletterPopup from "@/components/NewsletterPopup";
 
 export default function Home() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [isTypingComplete, setIsTypingComplete] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
-  useState(() => {
-    if (typeof window !== "undefined") {
-      setIsMounted(true);
-    }
-  });
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const sentence: Variants = {
     hidden: { opacity: 1 },
@@ -61,6 +60,7 @@ export default function Home() {
   return (
     <div className="flex min-h-screen flex-col overflow-x-hidden bg-white font-sans text-black selection:bg-blue-100 selection:text-blue-900">
       <Header />
+      <NewsletterPopup />
 
       {/* Hero Section */}
       <main className="relative flex flex-grow flex-col items-center overflow-hidden pt-32 sm:pt-40 lg:pt-52">

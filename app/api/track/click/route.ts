@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
         url,
       });
     } catch {
-      // Never fail the redirect — analytics is best-effort
+      // Never fail the redirect - analytics is best-effort
     }
   }
 

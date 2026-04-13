@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
       const supabase = getSupabaseServer();
       await supabase.from("email_opens").insert({ queue_id: queueId });
     } catch {
-      // Never fail the pixel — analytics is best-effort
+      // Never fail the pixel - analytics is best-effort
     }
   }
 

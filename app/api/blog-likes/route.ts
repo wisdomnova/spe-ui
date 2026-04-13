@@ -46,11 +46,11 @@ export async function POST(req: NextRequest) {
     let liked: boolean;
 
     if (existing) {
-      // Unlike — remove the row
+      // Unlike - remove the row
       await supabase.from("blog_likes").delete().eq("id", existing.id);
       liked = false;
     } else {
-      // Like — insert
+      // Like - insert
       const { error } = await supabase.from("blog_likes").insert({
         blog_id,
         slug,
