@@ -12,11 +12,11 @@ export async function GET(req: NextRequest) {
     const game = req.nextUrl.searchParams.get("game");
     const limit = Math.min(Number(req.nextUrl.searchParams.get("limit") || 50), 100);
 
-    if (!game || !["reaction", "emoji"].includes(game)) {
-      return NextResponse.json({ error: "game must be 'reaction' or 'emoji'" }, { status: 400 });
+    if (!game || !["reaction", "emoji", "stacker"].includes(game)) {
+      return NextResponse.json({ error: "game must be 'reaction', 'emoji', or 'stacker'" }, { status: 400 });
     }
 
-    // reaction = lower is better (ascending), emoji = higher is better (descending)
+    // reaction = lower is better (ascending), emoji/stacker = higher is better (descending)
     const ascending = game === "reaction";
 
     const { data, error } = await supabase
@@ -44,8 +44,8 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { game, player_name, score } = body;
 
-    if (!game || !["reaction", "emoji"].includes(game)) {
-      return NextResponse.json({ error: "game must be 'reaction' or 'emoji'" }, { status: 400 });
+    if (!game || !["reaction", "emoji", "stacker"].includes(game)) {
+      return NextResponse.json({ error: "game must be 'reaction', 'emoji', or 'stacker'" }, { status: 400 });
     }
 
     if (!player_name || typeof player_name !== "string" || player_name.trim().length === 0) {

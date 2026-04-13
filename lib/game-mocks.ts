@@ -76,6 +76,44 @@ export const REACTION_QUIT_MOCKS = [
   "Taking a tactical retreat. Respect.",
 ];
 
+/** When a player's barrel stack collapses */
+export const STACKER_COLLAPSE_MOCKS = [
+  "That stack had so much potential. And then you happened.",
+  "Gravity: 1. You: 0.",
+  "The barrels are filing a complaint.",
+  "That was almost impressive. Almost.",
+  "Your stacking career just peaked. Downhill from here.",
+  "Even Jenga players are laughing right now.",
+  "The barrel industry is in mourning.",
+  "Bold of you to think that would land.",
+  "Physics called. It wants its dignity back.",
+  "That tower had dreams. You crushed them.",
+  "Somewhere, a petroleum engineer just cringed.",
+  "Stack overflow. Literally.",
+  "The floor is lava. And your barrels just found out.",
+  "Your timing is... unique. Let's go with unique.",
+  "Plot twist: the barrel was never going to fit there.",
+];
+
+/** When a player quits barrel stacker mid-game */
+export const STACKER_QUIT_MOCKS = [
+  "Quitting? The barrels were just warming up.",
+  "Your tower was one barrel away from greatness. Probably.",
+  "Walking away from a stack that small? Bold.",
+  "The barrels will remember this betrayal.",
+  "That's fine. Not everyone can handle the pressure of stacking.",
+  "Even a toddler with blocks lasted longer.",
+  "The leaderboard just breathed a sigh of relief.",
+  "Tactical retreat? More like tactical defeat.",
+  "Your barrel stacking privileges have been noted.",
+  "The oil industry thanks you for your brief service.",
+  "Understandable. Those barrels were intimidating.",
+  "Quitting is free. And so was that performance.",
+  "Come back when your timing is less... you.",
+  "The stack was unstable anyway. Like your commitment.",
+  "Speed round champion of quitting.",
+];
+
 /** Pick a random mock from any array */
 export function getRandomMock(mocks: string[]): string {
   return mocks[Math.floor(Math.random() * mocks.length)];

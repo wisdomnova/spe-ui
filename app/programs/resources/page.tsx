@@ -167,6 +167,42 @@ function ReactionIllo() {
   );
 }
 
+/** Stacked barrels tower with wobble lines */
+function BarrelStackerIllo() {
+  return (
+    <svg viewBox="0 0 80 56" fill="none" className="w-full h-auto">
+      {/* Ground */}
+      <rect x="0" y="48" width="80" height="8" rx="4" fill="#DBEAFE" />
+      {/* Bottom barrel */}
+      <rect x="22" y="36" width="36" height="12" rx="3" fill="#2563EB" opacity="0.25" />
+      <rect x="22" y="37.5" width="36" height="2" rx="1" fill="white" opacity="0.3" />
+      <rect x="22" y="44" width="36" height="2" rx="1" fill="white" opacity="0.2" />
+      {/* Second barrel */}
+      <rect x="24" y="24" width="32" height="12" rx="3" fill="#2563EB" opacity="0.35" />
+      <rect x="24" y="25.5" width="32" height="2" rx="1" fill="white" opacity="0.3" />
+      <rect x="24" y="32" width="32" height="2" rx="1" fill="white" opacity="0.2" />
+      {/* Third barrel */}
+      <rect x="27" y="12" width="26" height="12" rx="3" fill="#2563EB" opacity="0.5" />
+      <rect x="27" y="13.5" width="26" height="2" rx="1" fill="white" opacity="0.3" />
+      <rect x="27" y="20" width="26" height="2" rx="1" fill="white" opacity="0.2" />
+      {/* Top barrel (moving) */}
+      <rect x="30" y="2" width="20" height="10" rx="3" fill="#2563EB" opacity="0.7" stroke="#2563EB" strokeWidth="1" strokeDasharray="3 2" />
+      <rect x="30" y="3.5" width="20" height="2" rx="1" fill="white" opacity="0.3" />
+      {/* Motion arrows */}
+      <path d="M26 7L22 7" stroke="#2563EB" strokeWidth="1.5" strokeLinecap="round" opacity="0.3" />
+      <path d="M54 7L58 7" stroke="#2563EB" strokeWidth="1.5" strokeLinecap="round" opacity="0.3" />
+      <path d="M22 7L24 5.5M22 7L24 8.5" stroke="#2563EB" strokeWidth="1" strokeLinecap="round" opacity="0.3" />
+      <path d="M58 7L56 5.5M58 7L56 8.5" stroke="#2563EB" strokeWidth="1" strokeLinecap="round" opacity="0.3" />
+      {/* Score badge */}
+      <rect x="60" y="16" width="14" height="10" rx="3" fill="#2563EB" opacity="0.12" />
+      <text x="63.5" y="23" fontSize="6" fontWeight="bold" fill="#2563EB" opacity="0.35">+1</text>
+      {/* Height indicator */}
+      <line x1="16" y1="48" x2="16" y2="6" stroke="#2563EB" strokeWidth="1" strokeDasharray="2 2" opacity="0.15" />
+      <path d="M14 8L16 4L18 8" stroke="#2563EB" strokeWidth="1" strokeLinecap="round" opacity="0.2" />
+    </svg>
+  );
+}
+
 /** Magnifying glass hovering over emoji symbols with a question mark */
 function EmojiDecodeIllo() {
   return (
@@ -193,6 +229,42 @@ function EmojiDecodeIllo() {
       {/* Score badge */}
       <rect x="60" y="40" width="14" height="8" rx="3" fill="#7C3AED" opacity="0.12" />
       <text x="63" y="46" fontSize="5" fontWeight="bold" fill="#7C3AED" opacity="0.3">+10</text>
+    </svg>
+  );
+}
+
+/** Weekly timetable grid with clock and pen */
+function TimetableIllo() {
+  return (
+    <svg viewBox="0 0 80 56" fill="none" className="w-full h-auto">
+      {/* Grid background */}
+      <rect x="8" y="10" width="64" height="38" rx="5" fill="#2563EB" opacity="0.05" stroke="#2563EB" strokeWidth="1" />
+      {/* Day column headers */}
+      {[14, 24, 34, 44, 54, 64].map((x, i) => (
+        <g key={i}>
+          <rect x={x - 3} y={12} width={8} height={5} rx={1.5} fill="#2563EB" opacity={0.12 + i * 0.02} />
+          <line x1={x + 1} y1={19} x2={x + 1} y2={44} stroke="#2563EB" strokeWidth="0.5" opacity="0.1" />
+        </g>
+      ))}
+      {/* Time rows */}
+      {[22, 29, 36].map((y) => (
+        <line key={y} x1="10" y1={y} x2="70" y2={y} stroke="#2563EB" strokeWidth="0.5" opacity="0.08" />
+      ))}
+      {/* Course blocks */}
+      <rect x="12" y="20" width="10" height="7" rx="2" fill="#2563EB" opacity="0.2" />
+      <rect x="32" y="23" width="10" height="11" rx="2" fill="#2563EB" opacity="0.3" />
+      <rect x="52" y="20" width="10" height="7" rx="2" fill="#2563EB" opacity="0.15" />
+      <rect x="22" y="31" width="10" height="7" rx="2" fill="#2563EB" opacity="0.25" />
+      <rect x="42" y="36" width="10" height="6" rx="2" fill="#2563EB" opacity="0.18" />
+      <rect x="62" y="28" width="6" height="9" rx="2" fill="#2563EB" opacity="0.22" />
+      {/* Clock icon top-left */}
+      <circle cx="11" cy="10" r="4" fill="white" stroke="#2563EB" strokeWidth="1.2" />
+      <line x1="11" y1="10" x2="11" y2="8" stroke="#2563EB" strokeWidth="1" strokeLinecap="round" />
+      <line x1="11" y1="10" x2="13" y2="10.5" stroke="#2563EB" strokeWidth="0.8" strokeLinecap="round" />
+      {/* Note icon bottom-right */}
+      <rect x="62" y="42" width="10" height="8" rx="2" fill="white" stroke="#2563EB" strokeWidth="1" />
+      <line x1="64" y1="45" x2="70" y2="45" stroke="#2563EB" strokeWidth="0.8" strokeLinecap="round" opacity="0.4" />
+      <line x1="64" y1="47" x2="68" y2="47" stroke="#2563EB" strokeWidth="0.8" strokeLinecap="round" opacity="0.3" />
     </svg>
   );
 }
@@ -238,6 +310,22 @@ const tools = [
     href: "/programs/resources/emoji-decode",
     Illustration: EmojiDecodeIllo,
     accent: "text-violet-600",
+  },
+  {
+    title: "Barrel Stacker",
+    description:
+      "Stack oil barrels as high as you can. Tap to drop each one - misaligned parts get sliced off. One miss and it all collapses. Compete for the tallest tower.",
+    href: "/programs/resources/barrel-stacker",
+    Illustration: BarrelStackerIllo,
+    accent: "text-blue-600",
+  },
+  {
+    title: "Class Timetable",
+    description:
+      "Community-managed class and exam timetables for 100 - 500 level. Add courses, set times, and leave notes like 'class postponed' for everyone to see.",
+    href: "/programs/resources/timetable",
+    Illustration: TimetableIllo,
+    accent: "text-blue-600",
   },
 ];
 
