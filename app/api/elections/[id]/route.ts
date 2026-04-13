@@ -1,0 +1,101 @@
+import { NextRequest, NextResponse } from "next/server";
+import { getSupabaseServer } from "@/lib/supabase-server";
+
+export const dynamic = "force-dynamic";
+
+/* ── Compute live status from date/time ── */
+function computeStatus(election: {
+  status: string;
+  election_date: string | null;
+  start_time: string | null;
+  end_time: string | null;
+}): string {
+  if (election.status === "Draft") return "Draft";
+  if (!election.election_date || !election.start_time || !election.end_time) {
+    return election.status;
+  }
+
+  const now = new Date();
+  const startDT = new Date(`${election.election_date}T${election.start_time}`);
+  const endDT = new Date(`${election.election_date}T${election.end_time}`);
+
+  if (now > endDT) return "Completed";
+  if (now >= startDT && now <= endDT) return "Ongoing";
+  return "Scheduled";
+}
+
+export async function GET(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const supabase = getSupabaseServer();
+
+    // Fetch election
+    const { data: election, error: elErr } = await supabase
+      .from("elections")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (elErr || !election) {
+      return NextResponse.json({ error: "Election not found" }, { status: 404 });
+    }
+
+    const liveStatus = computeStatus(election);
+
+    // Fetch positions with candidates, and voter counts in parallel
+    const [positionsRes, candidatesRes, votersRes, votedRes] = await Promise.all([
+      supabase
+        .from("election_positions")
+        .select("id, title, description, sort_order")
+        .eq("election_id", id)
+        .order("sort_order"),
+      supabase
+        .from("election_candidates")
+        .select("id, position_id, name, matric_number, image_url, manifesto")
+        .eq("election_id", id),
+      supabase
+        .from("election_voter_assignments")
+        .select("id")
+        .eq("election_id", id),
+      supabase
+        .from("election_voter_assignments")
+        .select("id")
+        .eq("election_id", id)
+        .eq("has_voted", true),
+    ]);
+
+    // Group candidates by position
+    const candidatesByPosition: Record<string, typeof candidatesRes.data> = {};
+    (candidatesRes.data || []).forEach((c) => {
+      if (!candidatesByPosition[c.position_id]) {
+        candidatesByPosition[c.position_id] = [];
+      }
+      candidatesByPosition[c.position_id]!.push(c);
+    });
+
+    const positions = (positionsRes.data || []).map((p) => ({
+      ...p,
+      candidates: candidatesByPosition[p.id] || [],
+    }));
+
+    return NextResponse.json({
+      id: election.id,
+      title: election.title,
+      description: election.description,
+      status: liveStatus,
+      is_open: election.is_open ?? false,
+      election_date: election.election_date,
+      start_time: election.start_time,
+      end_time: election.end_time,
+      positions,
+      voters_count: votersRes.data?.length || 0,
+      voted_count: votedRes.data?.length || 0,
+    });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Failed to fetch election";
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
+}

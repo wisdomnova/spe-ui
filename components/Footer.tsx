@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
@@ -8,10 +9,17 @@ import {
   Linkedin,
   Twitter,
   Youtube,
-  Instagram
+  Instagram,
+  Loader2,
+  Check,
 } from "lucide-react";
 
 export default function Footer() {
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+
   const socialLinks = [
     { name: "Twitter", href: "https://x.com/Spe_ui_?s=20", icon: Twitter },
     { name: "LinkedIn", href: "https://www.linkedin.com/company/spe-ui/", icon: Linkedin },
@@ -35,25 +43,65 @@ export default function Footer() {
             </h2>
             
             <div className="flex flex-col gap-4">
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+              <form
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  if (!email.trim() || loading) return;
+                  setLoading(true);
+                  setMessage("");
+                  setError("");
+                  try {
+                    const res = await fetch("/api/submissions", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ email: email.trim() }),
+                    });
+                    const data = await res.json();
+                    if (!res.ok) {
+                      setError(data.error || "Something went wrong");
+                    } else {
+                      setMessage(data.message);
+                      setEmail("");
+                    }
+                  } catch {
+                    setError("Network error. Please try again.");
+                  } finally {
+                    setLoading(false);
+                  }
+                }}
+                className="flex flex-col gap-4 sm:flex-row sm:items-center"
+              >
                 <div className="relative w-full max-w-md">
                   <input
                     type="email"
+                    value={email}
+                    onChange={(e) => { setEmail(e.target.value); setError(""); setMessage(""); }}
                     placeholder="Enter Your Email"
+                    required
                     className="h-14 w-full rounded-full bg-[#1e1e1e] px-8 text-base text-white placeholder-gray-500 outline-none ring-1 ring-white/10 transition-shadow focus:ring-white/20 md:h-16 md:text-lg"
                   />
                 </div>
                 <motion.button
+                  type="submit"
+                  disabled={loading || !email.trim()}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="flex h-14 w-full cursor-pointer items-center justify-between gap-6 rounded-full bg-[#2a56eb] pl-8 pr-3 font-bold text-white sm:w-auto md:h-16"
+                  className="flex h-14 w-full cursor-pointer items-center justify-between gap-6 rounded-full bg-[#2a56eb] pl-8 pr-3 font-bold text-white sm:w-auto md:h-16 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Submit
+                  {loading ? "Submitting..." : message ? "Subscribed!" : "Submit"}
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-black">
-                    <ArrowRight className="h-5 w-5" />
+                    {loading ? (
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                    ) : message ? (
+                      <Check className="h-5 w-5 text-emerald-400" />
+                    ) : (
+                      <ArrowRight className="h-5 w-5" />
+                    )}
                   </div>
                 </motion.button>
-              </div>
+              </form>
+              {error && <p className="text-xs text-red-400">{error}</p>}
+              {message && <p className="text-xs text-emerald-400">{message}</p>}
               <p className="text-xs text-gray-600">
                 By Clicking Submit, you acknowledge that we are trust worthy
               </p>
