@@ -55,25 +55,45 @@ export default function NewsletterPopup() {
     if (!email.trim() || status === "loading") return;
 
     setStatus("loading");
+    setMessage("");
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15_000);
+    let settled = false;
+
     try {
       const res = await fetch("/api/submissions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: email.trim() }),
+        signal: controller.signal,
       });
       const data = await res.json();
 
       if (res.ok) {
+        settled = true;
         setStatus("success");
         setMessage(data.message || "You're subscribed!");
         setTimeout(dismiss, 3500);
       } else {
+        settled = true;
         setStatus("error");
         setMessage(data.error || "Something went wrong");
       }
-    } catch {
+    } catch (err) {
+      settled = true;
       setStatus("error");
-      setMessage("Connection error. Try again.");
+      if (err instanceof DOMException && err.name === "AbortError") {
+        setMessage("Request timed out. Please try again.");
+      } else {
+        setMessage("Connection error. Try again.");
+      }
+    } finally {
+      clearTimeout(timeout);
+      if (!settled) {
+        setStatus("error");
+        setMessage("Something went wrong. Try again.");
+      }
     }
   };
 
