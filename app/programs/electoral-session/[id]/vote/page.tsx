@@ -29,7 +29,7 @@ interface Candidate {
   name: string;
   matric_number: string | null;
   image_url: string | null;
-  manifesto: string | null;
+  bio: string | null;
 }
 
 interface Position {
@@ -62,6 +62,7 @@ function formatTime12(time24: string) {
 }
 
 export default function VotePage() {
+  const NONE_OF_ABOVE_TOKEN = "__NONE_OF_ABOVE__";
   const params = useParams();
   const router = useRouter();
   const electionId = params?.id as string;
@@ -82,6 +83,7 @@ export default function VotePage() {
   const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [expandedManifesto, setExpandedManifesto] = useState<string | null>(null);
+  const [showNoneConfirm, setShowNoneConfirm] = useState(false);
 
   // Load election data + voter info
   useEffect(() => {
@@ -122,6 +124,15 @@ export default function VotePage() {
     [positions, selections]
   );
 
+  const proceedToNextStep = () => {
+    if (currentPosition < totalPositions - 1) {
+      setCurrentPosition((p) => p + 1);
+      setExpandedManifesto(null);
+      return;
+    }
+    if (allSelected) setShowReview(true);
+  };
+
   const handleSelect = (candidateId: string) => {
     if (!position) return;
     setSelections((prev) => ({
@@ -131,12 +142,12 @@ export default function VotePage() {
   };
 
   const goNext = () => {
-    if (currentPosition < totalPositions - 1) {
-      setCurrentPosition((p) => p + 1);
-      setExpandedManifesto(null);
-    } else if (allSelected) {
-      setShowReview(true);
+    if (!position || !selectedCandidate) return;
+    if (selectedCandidate === NONE_OF_ABOVE_TOKEN) {
+      setShowNoneConfirm(true);
+      return;
     }
+    proceedToNextStep();
   };
 
   const goPrev = () => {
@@ -295,12 +306,15 @@ export default function VotePage() {
               {/* Selections */}
               <div className="divide-y divide-gray-50">
                 {positions.map((pos) => {
-                  const candidate = pos.candidates.find((c) => c.id === selections[pos.id]);
+                  const candidateId = selections[pos.id];
+                  const candidate = pos.candidates.find((c) => c.id === candidateId);
                   return (
                     <div key={pos.id} className="flex items-center justify-between px-8 py-5">
                       <div>
                         <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">{pos.title}</p>
-                        <p className="mt-0.5 text-base font-bold text-gray-900">{candidate?.name || "-"}</p>
+                        <p className="mt-0.5 text-base font-bold text-gray-900">
+                          {candidateId === NONE_OF_ABOVE_TOKEN ? "None of the above" : candidate?.name || "-"}
+                        </p>
                       </div>
                       <button
                         onClick={() => {
@@ -476,8 +490,8 @@ export default function VotePage() {
                         </div>
                       </button>
 
-                      {/* Manifesto toggle */}
-                      {cand.manifesto && (
+                      {/* Candidate bio toggle */}
+                      {cand.bio && (
                         <div className="px-5 pb-1">
                           <button
                             onClick={(e) => {
@@ -486,7 +500,7 @@ export default function VotePage() {
                             }}
                             className="text-[11px] font-bold text-blue-600 hover:text-blue-700 mb-2"
                           >
-                            {isExpanded ? "Hide manifesto ↑" : "View manifesto →"}
+                            {isExpanded ? "Hide bio ↑" : "View bio →"}
                           </button>
                           <AnimatePresence>
                             {isExpanded && (
@@ -498,7 +512,7 @@ export default function VotePage() {
                                 className="overflow-hidden"
                               >
                                 <p className="text-sm font-medium leading-relaxed text-gray-600 pb-4 border-t border-gray-100 pt-3">
-                                  &ldquo;{cand.manifesto}&rdquo;
+                                  &ldquo;{cand.bio}&rdquo;
                                 </p>
                               </motion.div>
                             )}
@@ -508,6 +522,43 @@ export default function VotePage() {
                     </motion.div>
                   );
                 })}
+
+                {/* None of the above option */}
+                <motion.div
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className={`overflow-hidden rounded-2xl border-2 transition-all duration-200 ${
+                    selectedCandidate === NONE_OF_ABOVE_TOKEN
+                      ? "border-amber-500 bg-amber-50/60 shadow-lg shadow-amber-100/60"
+                      : "border-gray-100 bg-white hover:border-amber-200 hover:shadow-md"
+                  }`}
+                >
+                  <button
+                    onClick={() => handleSelect(NONE_OF_ABOVE_TOKEN)}
+                    className="flex w-full items-center gap-4 p-5 text-left"
+                  >
+                    <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-lg font-black transition-colors ${
+                      selectedCandidate === NONE_OF_ABOVE_TOKEN ? "bg-amber-500 text-white" : "bg-amber-100 text-amber-700"
+                    }`}>
+                      Ø
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-base font-bold ${selectedCandidate === NONE_OF_ABOVE_TOKEN ? "text-amber-700" : "text-gray-900"}`}>
+                        None of the above
+                      </p>
+                      <p className="text-xs font-medium text-gray-500 mt-0.5">
+                        Submit a blank preference for this position.
+                      </p>
+                    </div>
+                    <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 transition-all ${
+                      selectedCandidate === NONE_OF_ABOVE_TOKEN
+                        ? "border-amber-500 bg-amber-500"
+                        : "border-gray-200 bg-white"
+                    }`}>
+                      {selectedCandidate === NONE_OF_ABOVE_TOKEN && <CheckCircle size={16} className="text-white" />}
+                    </div>
+                  </button>
+                </motion.div>
               </div>
             </motion.div>
           </AnimatePresence>
@@ -555,6 +606,55 @@ export default function VotePage() {
           </div>
         </div>
       </main>
+
+      {/* NONE OF THE ABOVE CONFIRM MODAL */}
+      <AnimatePresence>
+        {showNoneConfirm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-6"
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 10 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 10 }}
+              className="w-full max-w-md rounded-3xl bg-white border border-gray-100 shadow-2xl p-6"
+            >
+              <div className="flex items-start gap-3">
+                <div className="h-10 w-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
+                  <AlertCircle size={18} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900">Confirm None of the Above</h3>
+                  <p className="text-sm text-gray-500 mt-1">
+                    You selected <span className="font-semibold text-gray-700">None of the above</span> for this position.
+                    This means no candidate receives your vote here.
+                  </p>
+                </div>
+              </div>
+              <div className="mt-6 flex items-center justify-end gap-2">
+                <button
+                  onClick={() => setShowNoneConfirm(false)}
+                  className="px-4 py-2.5 rounded-xl text-sm font-bold text-gray-500 hover:bg-gray-50"
+                >
+                  Go Back
+                </button>
+                <button
+                  onClick={() => {
+                    setShowNoneConfirm(false);
+                    proceedToNextStep();
+                  }}
+                  className="px-4 py-2.5 rounded-xl text-sm font-bold bg-amber-500 text-white hover:bg-amber-600"
+                >
+                  Continue
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

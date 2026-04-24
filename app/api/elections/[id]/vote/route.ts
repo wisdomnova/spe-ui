@@ -10,7 +10,6 @@ function computeStatus(election: {
   start_time: string | null;
   end_time: string | null;
 }): string {
-  if (election.status === "Draft") return "Draft";
   if (!election.election_date || !election.start_time || !election.end_time) {
     return election.status;
   }
@@ -26,7 +25,7 @@ function computeStatus(election: {
  * POST /api/elections/[id]/vote
  * Cast a ballot - one candidate per position.
  *
- * Body: { voter_id: string, votes: Record<position_id, candidate_id> }
+ * Body: { voter_id: string, votes: Record<position_id, candidate_id | "__NONE_OF_ABOVE__"> }
  *
  * - Validates election is Ongoing
  * - Validates voter hasn't already voted
@@ -44,6 +43,7 @@ export async function POST(
       voter_id: string;
       votes: Record<string, string>;
     };
+    const NONE_OF_ABOVE_TOKEN = "__NONE_OF_ABOVE__";
 
     if (!voter_id || !votes || typeof votes !== "object") {
       return NextResponse.json(
@@ -120,7 +120,8 @@ export async function POST(
       }
     }
 
-    // 4. Validate all candidates belong to their positions
+    // 4. Validate all candidates belong to their positions.
+    // "__NONE_OF_ABOVE__" is a system option and maps to NULL candidate_id.
     const { data: candidates } = await supabase
       .from("election_candidates")
       .select("id, position_id")
@@ -129,6 +130,7 @@ export async function POST(
     const candidateMap = new Map((candidates || []).map((c) => [c.id, c.position_id]));
 
     for (const [posId, candId] of Object.entries(votes)) {
+      if (candId === NONE_OF_ABOVE_TOKEN) continue;
       if (candidateMap.get(candId) !== posId) {
         return NextResponse.json(
           { error: "Invalid candidate selection." },
@@ -141,7 +143,7 @@ export async function POST(
     const voteRows = Object.entries(votes).map(([position_id, candidate_id]) => ({
       election_id: electionId,
       position_id,
-      candidate_id,
+      candidate_id: candidate_id === NONE_OF_ABOVE_TOKEN ? null : candidate_id,
     }));
 
     const { error: insertErr } = await supabase

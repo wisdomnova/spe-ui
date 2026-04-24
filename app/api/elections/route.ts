@@ -10,7 +10,6 @@ function computeStatus(election: {
   start_time: string | null;
   end_time: string | null;
 }): string {
-  if (election.status === "Draft") return "Draft";
   if (election.status === "Completed") return "Completed";
   if (!election.election_date || !election.start_time || !election.end_time) {
     return election.status;
@@ -29,11 +28,10 @@ export async function GET() {
   try {
     const supabase = getSupabaseServer();
 
-    // Fetch elections (exclude Draft)
+    // Fetch elections
     const { data: elections, error: electionsErr } = await supabase
       .from("elections")
       .select("id, title, description, status, is_open, election_date, start_time, end_time, created_at")
-      .neq("status", "Draft")
       .order("election_date", { ascending: false });
 
     if (electionsErr) throw electionsErr;
@@ -78,7 +76,8 @@ export async function GET() {
     const voterCounts = countBy(votersRes.data);
     const votedCounts = countBy(votedRes.data);
 
-    const result = elections.map((e) => ({
+    const result = elections
+      .map((e) => ({
       id: e.id,
       title: e.title,
       description: e.description,
@@ -91,7 +90,9 @@ export async function GET() {
       candidates_count: candCounts[e.id] || 0,
       voters_count: voterCounts[e.id] || 0,
       voted_count: votedCounts[e.id] || 0,
-    }));
+    }))
+      // Keep hidden drafts out of public listing, but allow drafts that are explicitly opened.
+      .filter((e) => !(e.status === "Draft" && !e.is_open));
 
     // Sort: Ongoing first, then Scheduled, then Completed
     const statusOrder: Record<string, number> = { Ongoing: 0, Scheduled: 1, Completed: 2 };

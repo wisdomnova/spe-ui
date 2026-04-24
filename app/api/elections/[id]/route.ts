@@ -10,7 +10,6 @@ function computeStatus(election: {
   start_time: string | null;
   end_time: string | null;
 }): string {
-  if (election.status === "Draft") return "Draft";
   if (!election.election_date || !election.start_time || !election.end_time) {
     return election.status;
   }
@@ -68,12 +67,26 @@ export async function GET(
     ]);
 
     // Group candidates by position
-    const candidatesByPosition: Record<string, typeof candidatesRes.data> = {};
+    const candidatesByPosition: Record<string, Array<{
+      id: string;
+      position_id: string;
+      name: string;
+      matric_number: string | null;
+      image_url: string | null;
+      bio: string | null;
+    }>> = {};
     (candidatesRes.data || []).forEach((c) => {
       if (!candidatesByPosition[c.position_id]) {
         candidatesByPosition[c.position_id] = [];
       }
-      candidatesByPosition[c.position_id]!.push(c);
+      candidatesByPosition[c.position_id]!.push({
+        id: c.id,
+        position_id: c.position_id,
+        name: c.name,
+        matric_number: c.matric_number,
+        image_url: c.image_url,
+        bio: c.manifesto,
+      });
     });
 
     const positions = (positionsRes.data || []).map((p) => ({
