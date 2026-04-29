@@ -20,8 +20,8 @@ function computeStatus(election: {
   const endDT = new Date(`${election.election_date}T${election.end_time}`);
 
   if (now > endDT) return "Completed";
-  if (now >= startDT && now <= endDT) return "Ongoing";
-  return "Scheduled";
+  if (now >= startDT && now <= endDT) return "Live";
+  return "Upcoming";
 }
 
 export async function GET() {
@@ -94,8 +94,8 @@ export async function GET() {
       // Keep hidden drafts out of public listing, but allow drafts that are explicitly opened.
       .filter((e) => !(e.status === "Draft" && !e.is_open));
 
-    // Sort: Ongoing first, then Scheduled, then Completed
-    const statusOrder: Record<string, number> = { Ongoing: 0, Scheduled: 1, Completed: 2 };
+    // Sort: Live first, then Upcoming, then Completed
+    const statusOrder: Record<string, number> = { Live: 0, Upcoming: 1, Completed: 2 };
     result.sort((a, b) => (statusOrder[a.status] ?? 3) - (statusOrder[b.status] ?? 3));
 
     return NextResponse.json(result);

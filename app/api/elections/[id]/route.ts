@@ -10,6 +10,7 @@ function computeStatus(election: {
   start_time: string | null;
   end_time: string | null;
 }): string {
+  if (election.status === "Completed") return "Completed";
   if (!election.election_date || !election.start_time || !election.end_time) {
     return election.status;
   }
@@ -19,8 +20,8 @@ function computeStatus(election: {
   const endDT = new Date(`${election.election_date}T${election.end_time}`);
 
   if (now > endDT) return "Completed";
-  if (now >= startDT && now <= endDT) return "Ongoing";
-  return "Scheduled";
+  if (now >= startDT && now <= endDT) return "Live";
+  return "Upcoming";
 }
 
 export async function GET(

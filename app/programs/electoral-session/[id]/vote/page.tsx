@@ -45,6 +45,7 @@ interface ElectionData {
   title: string;
   description: string | null;
   status: string;
+  is_open: boolean;
   election_date: string;
   start_time: string;
   end_time: string;
@@ -84,11 +85,51 @@ export default function VotePage() {
   const [submitError, setSubmitError] = useState("");
   const [expandedManifesto, setExpandedManifesto] = useState<string | null>(null);
   const [showNoneConfirm, setShowNoneConfirm] = useState(false);
+  const [pauseReason, setPauseReason] = useState<"closed" | "completed" | null>(null);
+  const [showPauseModal, setShowPauseModal] = useState(false);
+  const [pauseNotice, setPauseNotice] = useState<"closed" | "completed" | null>(null);
+  const [showRestoreToast, setShowRestoreToast] = useState(false);
+
+  const voterStorageKey = `voter_${electionId}`;
+  const ballotStorageKey = `vote_progress_${electionId}`;
 
   // Load election data + voter info
+  const fetchElection = async (silent = false) => {
+    if (!silent) setPageLoading(true);
+    try {
+      const r = await fetch(`/api/elections/${electionId}`);
+      const data = await r.json();
+      if (data.error) {
+        if (!silent) setPageError(data.error);
+        return;
+      }
+
+      const nextPauseReason: "closed" | "completed" | null =
+        data.status === "Completed" ? "completed" : !data.is_open ? "closed" : null;
+      setPauseReason(nextPauseReason);
+
+      if (!silent) {
+        if (data.status !== "Live") {
+          setPageError(`This election is ${data.status?.toLowerCase() || "not available"}. Voting is closed.`);
+        } else if (!data.positions?.length) {
+          setPageError("No positions found for this election.");
+        } else {
+          setElection(data);
+        }
+      } else if (election) {
+        // Keep positions/candidates updated without resetting current UI progress.
+        setElection((prev) => (prev ? { ...prev, ...data } : data));
+      }
+    } catch {
+      if (!silent) setPageError("Failed to load election data.");
+    } finally {
+      if (!silent) setPageLoading(false);
+    }
+  };
+
   useEffect(() => {
     // Check voter auth
-    const stored = sessionStorage.getItem(`voter_${electionId}`);
+    const stored = sessionStorage.getItem(voterStorageKey);
     if (!stored) {
       router.push(`/programs/electoral-session/${electionId}/auth`);
       return;
@@ -96,23 +137,64 @@ export default function VotePage() {
     const { voter_id } = JSON.parse(stored);
     setVoterId(voter_id);
 
-    // Fetch election
-    fetch(`/api/elections/${electionId}`)
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.error) {
-          setPageError(data.error);
-        } else if (data.status !== "Ongoing") {
-          setPageError(`This election is ${data.status?.toLowerCase() || "not available"}. Voting is closed.`);
-        } else if (!data.positions?.length) {
-          setPageError("No positions found for this election.");
-        } else {
-          setElection(data);
+    const progressRaw = sessionStorage.getItem(ballotStorageKey);
+    if (progressRaw) {
+      try {
+        const progress = JSON.parse(progressRaw) as {
+          currentPosition?: number;
+          selections?: Record<string, string>;
+          showReview?: boolean;
+        };
+        if (typeof progress.currentPosition === "number") {
+          setCurrentPosition(Math.max(0, progress.currentPosition));
         }
-      })
-      .catch(() => setPageError("Failed to load election data."))
-      .finally(() => setPageLoading(false));
-  }, [electionId, router]);
+        if (progress.selections && typeof progress.selections === "object") {
+          setSelections(progress.selections);
+        }
+        if (typeof progress.showReview === "boolean") {
+          setShowReview(progress.showReview);
+        }
+        setShowRestoreToast(true);
+      } catch {
+        sessionStorage.removeItem(ballotStorageKey);
+      }
+    }
+
+    fetchElection();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ballotStorageKey, electionId, router, voterStorageKey]);
+
+  useEffect(() => {
+    if (!election) return;
+    const payload = JSON.stringify({
+      currentPosition,
+      selections,
+      showReview,
+    });
+    sessionStorage.setItem(ballotStorageKey, payload);
+  }, [ballotStorageKey, currentPosition, election, selections, showReview]);
+
+  useEffect(() => {
+    if (!election) return;
+    const iv = setInterval(() => {
+      fetchElection(true);
+    }, 5000);
+    return () => clearInterval(iv);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [electionId, election?.id]);
+
+  useEffect(() => {
+    if (!pauseReason || submitted || pageLoading) return;
+    if (pauseNotice === pauseReason) return;
+    setPauseNotice(pauseReason);
+    setShowPauseModal(true);
+  }, [pageLoading, pauseNotice, pauseReason, submitted]);
+
+  useEffect(() => {
+    if (!showRestoreToast) return;
+    const timer = setTimeout(() => setShowRestoreToast(false), 2800);
+    return () => clearTimeout(timer);
+  }, [showRestoreToast]);
 
   const positions = election?.positions || [];
   const position = positions[currentPosition];
@@ -180,13 +262,21 @@ export default function VotePage() {
       }
 
       // Clear session auth after voting
-      sessionStorage.removeItem(`voter_${electionId}`);
+      sessionStorage.removeItem(voterStorageKey);
+      sessionStorage.removeItem(ballotStorageKey);
       setSubmitted(true);
     } catch {
       setSubmitError("Something went wrong. Please try again.");
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handlePauseAcknowledge = () => {
+    sessionStorage.removeItem(voterStorageKey);
+    sessionStorage.removeItem(ballotStorageKey);
+    setShowPauseModal(false);
+    router.replace(`/programs/electoral-session/${electionId}/auth`);
   };
 
   // ── LOADING / ERROR STATE ──
@@ -344,9 +434,9 @@ export default function VotePage() {
                   This action is final. You cannot change your vote after submission.
                 </div>
 
-                <button
+                      <button
                   onClick={handleSubmit}
-                  disabled={submitting}
+                        disabled={submitting || pauseReason !== null}
                   className="flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 py-4 text-base font-bold text-white shadow-lg shadow-blue-200 transition-all hover:bg-blue-700 disabled:opacity-50"
                 >
                   {submitting ? (
@@ -459,6 +549,7 @@ export default function VotePage() {
                       {/* Main row */}
                       <button
                         onClick={() => handleSelect(cand.id)}
+                        disabled={pauseReason !== null}
                         className="flex w-full items-center gap-4 p-5 text-left"
                       >
                         {/* Avatar */}
@@ -535,6 +626,7 @@ export default function VotePage() {
                 >
                   <button
                     onClick={() => handleSelect(NONE_OF_ABOVE_TOKEN)}
+                    disabled={pauseReason !== null}
                     className="flex w-full items-center gap-4 p-5 text-left"
                   >
                     <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-lg font-black transition-colors ${
@@ -567,7 +659,7 @@ export default function VotePage() {
           <div className="mt-8 flex items-center justify-between">
             <button
               onClick={goPrev}
-              disabled={currentPosition === 0}
+              disabled={currentPosition === 0 || pauseReason !== null}
               className="flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-bold text-gray-500 transition-colors hover:bg-white hover:text-gray-900 disabled:opacity-30 disabled:hover:bg-transparent"
             >
               <ChevronLeft size={18} /> Previous
@@ -575,7 +667,7 @@ export default function VotePage() {
 
             <button
               onClick={goNext}
-              disabled={!selectedCandidate}
+              disabled={!selectedCandidate || pauseReason !== null}
               className={`flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-bold transition-all shadow-lg disabled:opacity-40 disabled:shadow-none ${
                 currentPosition === totalPositions - 1 && allSelected
                   ? "bg-emerald-600 text-white shadow-emerald-200 hover:bg-emerald-700"
@@ -597,6 +689,17 @@ export default function VotePage() {
               Your vote is encrypted and anonymous
             </p>
           </div>
+          {pauseReason && (
+            <div className={`mt-4 rounded-xl border p-3 text-sm font-medium ${
+              pauseReason === "completed"
+                ? "border-gray-200 bg-gray-50 text-gray-600"
+                : "border-amber-200 bg-amber-50 text-amber-700"
+            }`}>
+              {pauseReason === "completed"
+                ? "This election is completed. Voting has ended."
+                : "This election is currently closed by the admin. Voting is paused until it is reopened."}
+            </div>
+          )}
           </div>
 
           {/* Right column - Live Activity Sidebar (desktop only) */}
@@ -652,6 +755,75 @@ export default function VotePage() {
                 </button>
               </div>
             </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showPauseModal && pauseReason && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[110] flex items-center justify-center bg-black/45 backdrop-blur-sm p-6"
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 10 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 10 }}
+              className="w-full max-w-md rounded-3xl border border-gray-100 bg-white p-6 shadow-2xl"
+            >
+              <div className="flex items-start gap-3">
+                <div
+                  className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
+                    pauseReason === "completed" ? "bg-gray-100 text-gray-600" : "bg-amber-100 text-amber-700"
+                  }`}
+                >
+                  <AlertCircle size={18} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900">
+                    {pauseReason === "completed" ? "Election Completed" : "Election Closed"}
+                  </h3>
+                  <p className="mt-1 text-sm text-gray-500">
+                    {pauseReason === "completed"
+                      ? "This election has been completed by the administrators. You have been signed out of the booth."
+                      : "This election was closed by the administrators while you were voting. You have been signed out; re-verify when voting reopens."}
+                  </p>
+                </div>
+              </div>
+              <div className="mt-6 flex items-center justify-end">
+                <button
+                  onClick={handlePauseAcknowledge}
+                  className="rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-blue-700"
+                >
+                  Continue
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showRestoreToast && !showPauseModal && !submitted && (
+          <motion.div
+            initial={{ opacity: 0, y: -10, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -8, scale: 0.98 }}
+            className="fixed right-4 top-24 z-[120] w-[min(92vw,360px)] rounded-2xl border border-blue-100 bg-white/95 p-3 shadow-xl backdrop-blur"
+          >
+            <div className="flex items-start gap-2.5">
+              <div className="mt-0.5 rounded-lg bg-blue-100 p-1.5 text-blue-600">
+                <CheckCircle size={14} />
+              </div>
+              <div>
+                <p className="text-sm font-bold text-gray-900">Progress restored</p>
+                <p className="text-xs font-medium text-gray-500">
+                  Your ballot draft was recovered from this device.
+                </p>
+              </div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

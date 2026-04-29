@@ -10,6 +10,7 @@ function computeStatus(election: {
   start_time: string | null;
   end_time: string | null;
 }): string {
+  if (election.status === "Completed") return "Completed";
   if (!election.election_date || !election.start_time || !election.end_time) {
     return election.status;
   }
@@ -17,8 +18,8 @@ function computeStatus(election: {
   const startDT = new Date(`${election.election_date}T${election.start_time}`);
   const endDT = new Date(`${election.election_date}T${election.end_time}`);
   if (now > endDT) return "Completed";
-  if (now >= startDT && now <= endDT) return "Ongoing";
-  return "Scheduled";
+  if (now >= startDT && now <= endDT) return "Live";
+  return "Upcoming";
 }
 
 /**
@@ -27,7 +28,7 @@ function computeStatus(election: {
  *
  * Body: { voter_id: string, votes: Record<position_id, candidate_id | "__NONE_OF_ABOVE__"> }
  *
- * - Validates election is Ongoing
+ * - Validates election is Live
  * - Validates voter hasn't already voted
  * - Inserts anonymous votes (no voter_id in election_votes)
  * - Marks voter as has_voted
@@ -54,7 +55,7 @@ export async function POST(
 
     const supabase = getSupabaseServer();
 
-    // 1. Fetch election + validate it's Ongoing
+    // 1. Fetch election + validate it's Live
     const { data: election, error: elErr } = await supabase
       .from("elections")
       .select("id, status, election_date, start_time, end_time, title, is_open")
@@ -73,7 +74,7 @@ export async function POST(
     }
 
     const liveStatus = computeStatus(election);
-    if (liveStatus !== "Ongoing") {
+    if (liveStatus !== "Live") {
       return NextResponse.json(
         { error: `This election is ${liveStatus.toLowerCase()}. Voting is not available.` },
         { status: 403 }

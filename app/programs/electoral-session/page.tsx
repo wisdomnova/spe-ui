@@ -23,11 +23,9 @@ interface Election {
   voted_count: number;
 }
 
-const STATUS_CONFIG: Record<string, { bg: string; text: string; dot: string; label: string }> = {
-  Ongoing: { bg: "bg-emerald-50", text: "text-emerald-700", dot: "bg-emerald-500", label: "Live Now" },
-  Scheduled: { bg: "bg-amber-50", text: "text-amber-700", dot: "bg-amber-500", label: "Upcoming" },
-  Completed: { bg: "bg-gray-100", text: "text-gray-500", dot: "bg-gray-400", label: "Completed" },
-  Draft: { bg: "bg-gray-100", text: "text-gray-400", dot: "bg-gray-300", label: "Draft" },
+const TAG_CONFIG: Record<string, { bg: string; text: string; dot: string; label: string }> = {
+  Live: { bg: "bg-emerald-50", text: "text-emerald-700", dot: "bg-emerald-500", label: "Live" },
+  Upcoming: { bg: "bg-amber-50", text: "text-amber-700", dot: "bg-amber-500", label: "Upcoming" },
 };
 
 function formatDateNice(dateStr: string) {
@@ -47,22 +45,44 @@ function formatTime12(time24: string) {
   return `${h12}:${m} ${ampm}`;
 }
 
+function computeTimeTag(election: Election): "Upcoming" | "Live" | null {
+  if (election.status === "Completed") return null;
+  if (!election.election_date || !election.start_time || !election.end_time) return null;
+
+  const now = new Date();
+  const start = new Date(`${election.election_date}T${election.start_time}`);
+  const end = new Date(`${election.election_date}T${election.end_time}`);
+
+  if (now < start) return "Upcoming";
+  if (now >= start && now < end) return "Live";
+  return null;
+}
+
 export default function ElectoralSessionPage() {
   const [elections, setElections] = useState<Election[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const fetchElections = async (silent = false) => {
+    if (!silent) setLoading(true);
     fetch("/api/elections")
       .then((r) => r.json())
       .then((data) => {
         if (Array.isArray(data)) setElections(data);
       })
       .catch(() => {})
-      .finally(() => setLoading(false));
+      .finally(() => {
+        if (!silent) setLoading(false);
+      });
+  };
+
+  useEffect(() => {
+    fetchElections();
+    const iv = setInterval(() => fetchElections(true), 10000);
+    return () => clearInterval(iv);
   }, []);
 
-  const ongoing = elections.filter((e) => e.status === "Ongoing");
-  const scheduled = elections.filter((e) => e.status === "Scheduled");
+  const ongoing = elections.filter((e) => computeTimeTag(e) === "Live");
+  const upcoming = elections.filter((e) => computeTimeTag(e) === "Upcoming");
   const completed = elections.filter((e) => e.status === "Completed");
 
   return (
@@ -150,24 +170,24 @@ export default function ElectoralSessionPage() {
           )}
 
           {/* Upcoming Elections */}
-          {scheduled.length > 0 && (
+          {upcoming.length > 0 && (
             <section className="mb-16">
               <h2 className="mb-6 text-lg font-bold text-gray-900">Upcoming Elections</h2>
               <div className="space-y-4">
-                {scheduled.map((election, i) => (
+                {upcoming.map((election, i) => (
                   <ElectionCard key={election.id} election={election} index={i + ongoing.length} />
                 ))}
               </div>
             </section>
           )}
 
-          {/* Past Elections */}
+          {/* Completed Elections */}
           {completed.length > 0 && (
             <section>
-              <h2 className="mb-6 text-lg font-bold text-gray-500">Past Elections</h2>
+              <h2 className="mb-6 text-lg font-bold text-gray-500">Completed Elections</h2>
               <div className="space-y-4">
                 {completed.map((election, i) => (
-                  <ElectionCard key={election.id} election={election} index={i + ongoing.length + scheduled.length} />
+                  <ElectionCard key={election.id} election={election} index={i + ongoing.length + upcoming.length} />
                 ))}
               </div>
             </section>
@@ -192,9 +212,10 @@ function ElectionCard({
   index: number;
   featured?: boolean;
 }) {
-  const config = STATUS_CONFIG[election.status] || STATUS_CONFIG.Draft;
+  const timeTag = computeTimeTag(election);
+  const config = timeTag ? TAG_CONFIG[timeTag] : null;
   const turnout = election.voters_count > 0 ? Math.round((election.voted_count / election.voters_count) * 100) : 0;
-  const isClickable = election.is_open && election.status === "Ongoing";
+  const isClickable = election.is_open && timeTag === "Live";
 
   const inner = (
     <motion.div
@@ -204,23 +225,24 @@ function ElectionCard({
       className={`group relative overflow-hidden rounded-3xl border bg-white p-6 sm:p-8 transition-all duration-300 ${
         featured
           ? "border-emerald-200 shadow-lg shadow-emerald-100/50 hover:shadow-xl hover:shadow-emerald-100/60"
-          : election.status === "Completed"
-            ? "border-gray-100 opacity-75 hover:opacity-100"
-            : "border-gray-100 shadow-sm hover:shadow-lg hover:border-blue-100"
+          : "border-gray-100 shadow-sm hover:shadow-lg hover:border-blue-100"
       } ${isClickable ? "cursor-pointer" : ""}`}
     >
       {/* Status + Live dot */}
       <div className="mb-4 flex items-center justify-between">
-        <div className={`flex items-center gap-2 rounded-full px-3.5 py-1.5 text-xs font-bold ${config.bg} ${config.text}`}>
-          {election.status === "Ongoing" && (
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-              <span className={`relative inline-flex h-2 w-2 rounded-full ${config.dot}`} />
-            </span>
-          )}
-          {election.status !== "Ongoing" && <span className={`h-2 w-2 rounded-full ${config.dot}`} />}
-          {config.label}
-        </div>
+        {config ? (
+          <div className={`flex items-center gap-2 rounded-full px-3.5 py-1.5 text-xs font-bold ${config.bg} ${config.text}`}>
+            {timeTag === "Live" ? (
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                <span className={`relative inline-flex h-2 w-2 rounded-full ${config.dot}`} />
+              </span>
+            ) : (
+              <span className={`h-2 w-2 rounded-full ${config.dot}`} />
+            )}
+            {config.label}
+          </div>
+        ) : <div />}
         {isClickable && (
           <ChevronRight size={20} className="text-gray-300 transition-all group-hover:text-blue-600 group-hover:translate-x-1" />
         )}
@@ -249,11 +271,11 @@ function ElectionCard({
       </div>
 
       {/* Turnout bar (only for ongoing/completed) */}
-      {(election.status === "Ongoing" || election.status === "Completed") && (
+      {(timeTag === "Live" || election.status === "Completed") && (
         <div className="mt-5">
           <div className="mb-1.5 flex items-center justify-between">
             <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
-              {election.status === "Ongoing" ? "Live Turnout" : "Final Turnout"}
+              {election.status === "Completed" ? "Final Turnout" : "Live Turnout"}
             </span>
             <span className="text-xs font-bold text-gray-500">
               {election.voted_count}/{election.voters_count} ({turnout}%)
@@ -262,9 +284,9 @@ function ElectionCard({
           <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
             <motion.div
               className={`h-full rounded-full ${
-                election.status === "Ongoing"
-                  ? "bg-gradient-to-r from-emerald-400 to-emerald-500"
-                  : "bg-gray-300"
+                election.status === "Completed"
+                  ? "bg-gray-300"
+                  : "bg-gradient-to-r from-emerald-400 to-emerald-500"
               }`}
               initial={{ width: 0 }}
               animate={{ width: `${turnout}%` }}
@@ -275,7 +297,7 @@ function ElectionCard({
       )}
 
       {/* CTA for ongoing */}
-      {election.status === "Ongoing" && election.is_open && (
+      {timeTag === "Live" && election.is_open && (
         <div className="mt-6 flex items-center gap-3">
           <span className="rounded-full bg-blue-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-blue-200 transition-all group-hover:bg-blue-700 group-hover:shadow-xl group-hover:shadow-blue-300">
             Cast Your Vote
@@ -284,7 +306,7 @@ function ElectionCard({
       )}
 
       {/* Closed state message */}
-      {!election.is_open && election.status !== "Completed" && (
+      {!election.is_open && timeTag !== null && (
         <div className="mt-6 flex items-center gap-2">
           <div className="flex items-center gap-2 rounded-full bg-amber-50 border border-amber-200 px-5 py-2.5">
             <Clock size={14} className="text-amber-500" />

@@ -36,6 +36,20 @@ export default function ElectionAuthPage() {
   const [maskedEmail, setMaskedEmail] = useState("");
   const [pendingVoter, setPendingVoter] = useState<{ voter_id: string; voter_name: string } | null>(null);
   const [resendCooldown, setResendCooldown] = useState(0);
+  const voterStorageKey = `voter_${electionId}`;
+  const ballotStorageKey = `vote_progress_${electionId}`;
+
+  useEffect(() => {
+    const savedVoter = sessionStorage.getItem(voterStorageKey);
+    if (savedVoter) {
+      router.replace(`/programs/electoral-session/${electionId}/vote`);
+      return;
+    }
+    const savedProgress = sessionStorage.getItem(ballotStorageKey);
+    if (savedProgress) {
+      sessionStorage.removeItem(ballotStorageKey);
+    }
+  }, [ballotStorageKey, electionId, router, voterStorageKey]);
 
   // Fetch election title
   useEffect(() => {
@@ -85,11 +99,11 @@ export default function ElectionAuthPage() {
         setResendCooldown(60);
       } else {
         // Fallback: if OTP not sent, go straight (shouldn't happen now)
-        sessionStorage.setItem(`voter_${electionId}`, JSON.stringify({
+        sessionStorage.setItem(voterStorageKey, JSON.stringify({
           voter_id: data.voter_id,
           voter_name: data.voter_name,
         }));
-        router.push(`/programs/electoral-session/${electionId}/vote`);
+        router.replace(`/programs/electoral-session/${electionId}/vote`);
       }
     } catch {
       setError("Something went wrong. Please try again.");
@@ -142,10 +156,10 @@ export default function ElectionAuthPage() {
       }
 
       // OTP verified - now save voter to sessionStorage
-      sessionStorage.setItem(`voter_${electionId}`, JSON.stringify(pendingVoter));
+      sessionStorage.setItem(voterStorageKey, JSON.stringify(pendingVoter));
 
       // Redirect to voting booth
-      router.push(`/programs/electoral-session/${electionId}/vote`);
+      router.replace(`/programs/electoral-session/${electionId}/vote`);
     } catch {
       setError("Something went wrong. Please try again.");
       setLoading(false);
