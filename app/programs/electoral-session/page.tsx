@@ -11,7 +11,7 @@ import { Vote, Calendar, Clock, Users, ChevronRight, ShieldCheck, Loader2 } from
 interface Election {
   id: string;
   title: string;
-  description: string | null;
+  description: string | null; 
   status: string;
   is_open: boolean;
   election_date: string;
@@ -194,7 +194,7 @@ function ElectionCard({
 }) {
   const config = STATUS_CONFIG[election.status] || STATUS_CONFIG.Draft;
   const turnout = election.voters_count > 0 ? Math.round((election.voted_count / election.voters_count) * 100) : 0;
-  const isClickable = election.is_open && (election.status === "Ongoing" || election.status === "Scheduled");
+  const isClickable = election.is_open && election.status === "Ongoing";
 
   const inner = (
     <motion.div

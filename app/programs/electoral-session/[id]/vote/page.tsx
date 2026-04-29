@@ -313,7 +313,7 @@ export default function VotePage() {
                       <div>
                         <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">{pos.title}</p>
                         <p className="mt-0.5 text-base font-bold text-gray-900">
-                          {candidateId === NONE_OF_ABOVE_TOKEN ? "None of the above" : candidate?.name || "-"}
+                          {candidateId === NONE_OF_ABOVE_TOKEN ? "Void" : candidate?.name || "-"}
                         </p>
                       </div>
                       <button
@@ -523,7 +523,7 @@ export default function VotePage() {
                   );
                 })}
 
-                {/* None of the above option */}
+                {/* Void option */}
                 <motion.div
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -544,7 +544,7 @@ export default function VotePage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className={`text-base font-bold ${selectedCandidate === NONE_OF_ABOVE_TOKEN ? "text-amber-700" : "text-gray-900"}`}>
-                        None of the above
+                        Void
                       </p>
                       <p className="text-xs font-medium text-gray-500 mt-0.5">
                         Submit a blank preference for this position.
@@ -627,9 +627,9 @@ export default function VotePage() {
                   <AlertCircle size={18} />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-gray-900">Confirm None of the Above</h3>
+                  <h3 className="text-lg font-bold text-gray-900">Confirm Void Vote</h3>
                   <p className="text-sm text-gray-500 mt-1">
-                    You selected <span className="font-semibold text-gray-700">None of the above</span> for this position.
+                    You selected <span className="font-semibold text-gray-700">Void</span> for this position.
                     This means no candidate receives your vote here.
                   </p>
                 </div>
