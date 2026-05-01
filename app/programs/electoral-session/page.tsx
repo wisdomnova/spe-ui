@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Vote, Calendar, Clock, Users, ChevronRight, ShieldCheck, Loader2 } from "lucide-react";
+import { computeElectionTimeTag } from "@/lib/election-status";
 
 /* ── Types ── */
 interface Election {
@@ -45,19 +46,6 @@ function formatTime12(time24: string) {
   return `${h12}:${m} ${ampm}`;
 }
 
-function computeTimeTag(election: Election): "Upcoming" | "Live" | null {
-  if (election.status === "Completed") return null;
-  if (!election.election_date || !election.start_time || !election.end_time) return null;
-
-  const now = new Date();
-  const start = new Date(`${election.election_date}T${election.start_time}`);
-  const end = new Date(`${election.election_date}T${election.end_time}`);
-
-  if (now < start) return "Upcoming";
-  if (now >= start && now < end) return "Live";
-  return null;
-}
-
 export default function ElectoralSessionPage() {
   const [elections, setElections] = useState<Election[]>([]);
   const [loading, setLoading] = useState(true);
@@ -81,8 +69,8 @@ export default function ElectoralSessionPage() {
     return () => clearInterval(iv);
   }, []);
 
-  const ongoing = elections.filter((e) => computeTimeTag(e) === "Live");
-  const upcoming = elections.filter((e) => computeTimeTag(e) === "Upcoming");
+  const ongoing = elections.filter((e) => computeElectionTimeTag(e) === "Live");
+  const upcoming = elections.filter((e) => computeElectionTimeTag(e) === "Upcoming");
   const completed = elections.filter((e) => e.status === "Completed");
 
   return (
@@ -212,7 +200,7 @@ function ElectionCard({
   index: number;
   featured?: boolean;
 }) {
-  const timeTag = computeTimeTag(election);
+  const timeTag = computeElectionTimeTag(election);
   const config = timeTag ? TAG_CONFIG[timeTag] : null;
   const turnout = election.voters_count > 0 ? Math.round((election.voted_count / election.voters_count) * 100) : 0;
   const isClickable = election.is_open && timeTag === "Live";

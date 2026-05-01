@@ -3,7 +3,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import Header from "@/components/Header";
 import VotingCrowd from "@/components/elections/VotingCrowd";
@@ -557,7 +556,13 @@ export default function VotePage() {
                           isSelected ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-400"
                         }`}>
                           {cand.image_url ? (
-                            <Image src={cand.image_url} alt="" width={56} height={56} className="h-14 w-14 rounded-2xl object-cover" />
+                            <img
+                              src={cand.image_url}
+                              alt={cand.name}
+                              className="h-14 w-14 rounded-2xl object-cover"
+                              loading="lazy"
+                              referrerPolicy="no-referrer"
+                            />
                           ) : (
                             cand.name.split(" ").map((n) => n[0]).join("").slice(0, 2)
                           )}

@@ -1,28 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseServer } from "@/lib/supabase-server";
+import { computeElectionStatus } from "@/lib/election-status";
 
 export const dynamic = "force-dynamic";
-
-/* ── Compute live status from date/time ── */
-function computeStatus(election: {
-  status: string;
-  election_date: string | null;
-  start_time: string | null;
-  end_time: string | null;
-}): string {
-  if (election.status === "Completed") return "Completed";
-  if (!election.election_date || !election.start_time || !election.end_time) {
-    return election.status;
-  }
-
-  const now = new Date();
-  const startDT = new Date(`${election.election_date}T${election.start_time}`);
-  const endDT = new Date(`${election.election_date}T${election.end_time}`);
-
-  if (now > endDT) return "Completed";
-  if (now >= startDT && now <= endDT) return "Live";
-  return "Upcoming";
-}
 
 export async function GET() {
   try {
@@ -81,7 +61,7 @@ export async function GET() {
       id: e.id,
       title: e.title,
       description: e.description,
-      status: computeStatus(e),
+      status: computeElectionStatus(e),
       is_open: e.is_open ?? false,
       election_date: e.election_date,
       start_time: e.start_time,

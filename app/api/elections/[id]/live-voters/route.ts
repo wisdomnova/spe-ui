@@ -15,6 +15,12 @@ export async function GET(
   try {
     const { id: electionId } = await params;
     const supabase = getSupabaseServer();
+    const { data: electionMeta } = await supabase
+      .from("elections")
+      .select("show_live_voter_names")
+      .eq("id", electionId)
+      .single();
+    const showLiveVoterNames = electionMeta?.show_live_voter_names !== false;
 
     // Fetch recent voters who have voted, joined with voter names
     const { data, error } = await supabase
@@ -38,13 +44,14 @@ export async function GET(
       const voter = d.voters as unknown as { id: string; name: string } | null;
       return {
         voter_id: d.voter_id,
-        name: voter?.name || "Anonymous",
+        name: showLiveVoterNames ? (voter?.name || "Anonymous") : "Hidden voter",
         voted_at: d.voted_at,
       };
     });
 
     return NextResponse.json({
       total_voted: count || 0,
+      show_live_voter_names: showLiveVoterNames,
       recent_voters: voters,
     });
   } catch (err: unknown) {

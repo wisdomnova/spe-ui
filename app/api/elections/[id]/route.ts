@@ -1,28 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseServer } from "@/lib/supabase-server";
+import { computeElectionStatus } from "@/lib/election-status";
 
 export const dynamic = "force-dynamic";
-
-/* ── Compute live status from date/time ── */
-function computeStatus(election: {
-  status: string;
-  election_date: string | null;
-  start_time: string | null;
-  end_time: string | null;
-}): string {
-  if (election.status === "Completed") return "Completed";
-  if (!election.election_date || !election.start_time || !election.end_time) {
-    return election.status;
-  }
-
-  const now = new Date();
-  const startDT = new Date(`${election.election_date}T${election.start_time}`);
-  const endDT = new Date(`${election.election_date}T${election.end_time}`);
-
-  if (now > endDT) return "Completed";
-  if (now >= startDT && now <= endDT) return "Live";
-  return "Upcoming";
-}
 
 export async function GET(
   _req: NextRequest,
@@ -43,7 +23,7 @@ export async function GET(
       return NextResponse.json({ error: "Election not found" }, { status: 404 });
     }
 
-    const liveStatus = computeStatus(election);
+    const liveStatus = computeElectionStatus(election);
 
     // Fetch positions with candidates, and voter counts in parallel
     const [positionsRes, candidatesRes, votersRes, votedRes] = await Promise.all([
