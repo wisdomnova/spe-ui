@@ -260,13 +260,13 @@ export default function BlogSlugPage() {
               initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8 }}
-              className="mt-16 relative aspect-[16/9] w-full overflow-hidden rounded-[2.5rem] shadow-2xl"
+              className="mt-16 relative aspect-[16/9] w-full overflow-hidden rounded-[2.5rem] bg-gray-100 shadow-2xl"
             >
               <Image
                 src={post.cover_image_url}
                 alt={post.title}
                 fill
-                className="object-cover"
+                className="object-contain"
                 priority
               />
             </motion.div>

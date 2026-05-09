@@ -144,7 +144,7 @@ export default function BlogPage() {
                             src={blog.cover_image_url}
                             alt={blog.title}
                             fill
-                            className="object-cover transition-transform duration-500 group-hover:scale-105"
+                            className="object-contain"
                           />
                         ) : (
                           <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-blue-50 to-gray-100">
