@@ -9,7 +9,7 @@ import BlockCharacter from "./BlockCharacter";
    1. An animated ballot box scene (character walks up, drops ballot)
    2. A scrolling list of recent voters with names + block avatars
 
-   Polls /api/elections/[id]/live-voters every 10s for real data.
+   Polls /api/elections/[id]/live-voters on an interval for real data.
    ────────────────────────────────────────────────────────────── */
 
 interface Voter {
@@ -183,10 +183,10 @@ export default function VotingCrowd({ electionId }: VotingCrowdProps) {
     }
   }, [electionId]);
 
-  // Initial fetch + poll every 10 seconds
+  // Initial fetch + poll (gentle interval — each open vote page hits Supabase)
   useEffect(() => {
     fetchVoters();
-    const interval = setInterval(fetchVoters, 10000);
+    const interval = setInterval(fetchVoters, 30_000);
     return () => clearInterval(interval);
   }, [fetchVoters]);
 

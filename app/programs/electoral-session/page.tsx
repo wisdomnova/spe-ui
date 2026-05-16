@@ -56,24 +56,79 @@ function formatTime12(time24: string | null | undefined) {
 export default function ElectoralSessionPage() {
   const [elections, setElections] = useState<Election[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [retryKey, setRetryKey] = useState(0);
 
-  const fetchElections = async (silent = false) => {
-    if (!silent) setLoading(true);
-    fetch("/api/elections")
-      .then((r) => r.json())
-      .then((data) => {
-        if (Array.isArray(data)) setElections(data);
-      })
-      .catch(() => {})
-      .finally(() => {
-        if (!silent) setLoading(false);
-      });
-  };
+  /** Background refresh only — must never touch `loading` (fixes stuck spinner if polls overlap initial fetch). */
+  const LIST_REFRESH_MS = 30_000;
+  /** Must exceed server elections wait + counts + JSON (server uses up to ~120s per attempt + retry). */
+  const INITIAL_FETCH_MS = 150_000;
 
   useEffect(() => {
-    fetchElections();
-    const iv = setInterval(() => fetchElections(true), 10000);
-    return () => clearInterval(iv);
+    let cancelled = false;
+    const ac = new AbortController();
+    const deadline = setTimeout(() => ac.abort(), INITIAL_FETCH_MS);
+
+    async function initialLoad() {
+      setLoading(true);
+      setLoadError(null);
+      try {
+        const res = await fetch("/api/elections", {
+          signal: ac.signal,
+          cache: "no-store",
+        });
+        const data: unknown = await res.json();
+        if (cancelled) return;
+        if (!res.ok) {
+          const msg =
+            data && typeof data === "object" && "error" in data && typeof (data as { error?: unknown }).error === "string"
+              ? (data as { error: string }).error
+              : `Request failed (${res.status})`;
+          throw new Error(msg);
+        }
+        if (!Array.isArray(data)) {
+          throw new Error("Unexpected response from server.");
+        }
+        setElections(data as Election[]);
+        setLoadError(null);
+      } catch (e) {
+        if (cancelled) return;
+        const msg =
+          typeof e === "object" &&
+          e !== null &&
+          "name" in e &&
+          (e as { name: string }).name === "AbortError"
+            ? "Could not load elections in time. Check your connection and try again."
+            : e instanceof Error
+              ? e.message
+              : "Failed to load elections.";
+        setLoadError(msg);
+      } finally {
+        clearTimeout(deadline);
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    initialLoad();
+    return () => {
+      cancelled = true;
+      ac.abort();
+      clearTimeout(deadline);
+    };
+  }, [retryKey]);
+
+  useEffect(() => {
+    const id = setInterval(async () => {
+      try {
+        const res = await fetch("/api/elections", { cache: "no-store" });
+        if (!res.ok) return;
+        const data: unknown = await res.json();
+        if (Array.isArray(data)) setElections(data as Election[]);
+      } catch {
+        /* keep last good payload */
+      }
+    }, LIST_REFRESH_MS);
+    return () => clearInterval(id);
   }, []);
 
   const ongoing = elections.filter((e) => computeElectionTimeTag(e) === "Live");
@@ -138,6 +193,17 @@ export default function ElectoralSessionPage() {
           {loading ? (
             <div className="flex items-center justify-center py-24">
               <Loader2 size={28} className="animate-spin text-blue-600" />
+            </div>
+          ) : loadError ? (
+            <div className="rounded-2xl border border-red-100 bg-red-50 px-6 py-10 text-center">
+              <p className="text-lg font-semibold text-red-800">{loadError}</p>
+              <button
+                type="button"
+                onClick={() => setRetryKey((k) => k + 1)}
+                className="mt-6 rounded-full bg-blue-600 px-6 py-3 text-sm font-bold text-white hover:bg-blue-700"
+              >
+                Try again
+              </button>
             </div>
           ) : elections.length === 0 ? (
             <div className="text-center py-24">
