@@ -12,12 +12,12 @@ import { computeElectionTimeTag } from "@/lib/election-status";
 interface Election {
   id: string;
   title: string;
-  description: string | null; 
+  description: string | null;
   status: string;
   is_open: boolean;
-  election_date: string;
-  start_time: string;
-  end_time: string;
+  election_date: string | null;
+  start_time: string | null;
+  end_time: string | null;
   positions_count: number;
   candidates_count: number;
   voters_count: number;
@@ -29,8 +29,11 @@ const TAG_CONFIG: Record<string, { bg: string; text: string; dot: string; label:
   Upcoming: { bg: "bg-amber-50", text: "text-amber-700", dot: "bg-amber-500", label: "Upcoming" },
 };
 
-function formatDateNice(dateStr: string) {
-  return new Date(dateStr + "T00:00:00").toLocaleDateString("en-US", {
+function formatDateNice(dateStr: string | null | undefined) {
+  if (!dateStr || typeof dateStr !== "string") return "Date TBA";
+  const d = new Date(`${dateStr}T00:00:00`);
+  if (Number.isNaN(d.getTime())) return "Date TBA";
+  return d.toLocaleDateString("en-US", {
     weekday: "long",
     month: "long",
     day: "numeric",
@@ -38,12 +41,16 @@ function formatDateNice(dateStr: string) {
   });
 }
 
-function formatTime12(time24: string) {
-  const [h, m] = time24.split(":");
+function formatTime12(time24: string | null | undefined) {
+  if (!time24 || typeof time24 !== "string") return "—";
+  const parts = time24.split(":");
+  const h = parts[0];
+  const m = parts[1] ?? "00";
   const hour = parseInt(h, 10);
+  if (Number.isNaN(hour)) return "—";
   const ampm = hour >= 12 ? "PM" : "AM";
   const h12 = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
-  return `${h12}:${m} ${ampm}`;
+  return `${h12}:${m.padStart(2, "0")} ${ampm}`;
 }
 
 export default function ElectoralSessionPage() {

@@ -45,20 +45,24 @@ interface ElectionData {
   description: string | null;
   status: string;
   is_open: boolean;
-  election_date: string;
-  start_time: string;
-  end_time: string;
+  election_date: string | null;
+  start_time: string | null;
+  end_time: string | null;
   positions: Position[];
   voters_count: number;
   voted_count: number;
 }
 
-function formatTime12(time24: string) {
-  const [h, m] = time24.split(":");
+function formatTime12(time24: string | null | undefined) {
+  if (!time24 || typeof time24 !== "string") return "—";
+  const parts = time24.split(":");
+  const h = parts[0];
+  const m = parts[1] ?? "00";
   const hour = parseInt(h, 10);
+  if (Number.isNaN(hour)) return "—";
   const ampm = hour >= 12 ? "PM" : "AM";
   const h12 = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
-  return `${h12}:${m} ${ampm}`;
+  return `${h12}:${m.padStart(2, "0")} ${ampm}`;
 }
 
 export default function VotePage() {

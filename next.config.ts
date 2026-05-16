@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import path from "path";
 
 const adminUrl = process.env.NEXT_PUBLIC_ADMIN_URL;
 const adminHostname = (() => {
@@ -11,6 +12,11 @@ const adminHostname = (() => {
 })();
 
 const nextConfig: NextConfig = {
+  // When a parent folder has package-lock.json, Turbopack may treat it as the workspace root
+  // and fail to resolve tailwindcss — pin root to this app directory.
+  turbopack: {
+    root: path.join(__dirname),
+  },
   images: {
     remotePatterns: [
       {
