@@ -99,6 +99,56 @@ async function fetchCountsBestEffort(
   }
 }
 
+/**
+ * Ballots implied by anonymous rows (min count per configured position).
+ * Overrides RPC `voted_count` when DB still uses assignment flags — keeps public cards aligned with results.
+ */
+async function ledgerBallotCountForElection(
+  supabase: ReturnType<typeof getSupabaseServer>,
+  electionId: string,
+): Promise<number> {
+  const { data: posRows, error: posErr } = await supabase
+    .from("election_positions")
+    .select("id")
+    .eq("election_id", electionId);
+  if (posErr) throw posErr;
+  if (!posRows?.length) return 0;
+  const counts = await Promise.all(
+    posRows.map(async (p: { id: string }) => {
+      const { count, error } = await supabase
+        .from("election_votes")
+        .select("*", { count: "exact", head: true })
+        .eq("election_id", electionId)
+        .eq("position_id", p.id);
+      if (error) throw error;
+      return count ?? 0;
+    }),
+  );
+  return Math.min(...counts);
+}
+
+async function overrideVotedCountsFromLedger(
+  supabase: ReturnType<typeof getSupabaseServer>,
+  electionIds: string[],
+  countsMap: CountMap,
+): Promise<void> {
+  const chunkSize = 6;
+  for (let i = 0; i < electionIds.length; i += chunkSize) {
+    const chunk = electionIds.slice(i, i + chunkSize);
+    await Promise.all(
+      chunk.map(async (id) => {
+        const row = countsMap.get(id);
+        if (!row) return;
+        try {
+          row.voted_count = await ledgerBallotCountForElection(supabase, id);
+        } catch {
+          /* leave RPC / legacy value */
+        }
+      }),
+    );
+  }
+}
+
 /** Prefer DB-side aggregation (see spe-ui-admin migrations/election_list_counts_rpc.sql). */
 async function fetchCountsAggregated(
   supabase: ReturnType<typeof getSupabaseServer>,
@@ -172,13 +222,7 @@ async function fetchCountsLegacy(
             row.voters_count = count ?? 0;
           })(),
           (async () => {
-            const { count, error } = await supabase
-              .from("election_voter_assignments")
-              .select("*", { count: "exact", head: true })
-              .eq("election_id", id)
-              .eq("has_voted", true);
-            if (error) throw error;
-            row.voted_count = count ?? 0;
+            row.voted_count = await ledgerBallotCountForElection(supabase, id);
           })(),
         ];
       }),
@@ -217,6 +261,8 @@ export async function GET() {
       25_000,
       fallbackMap,
     );
+
+    await raceMs(overrideVotedCountsFromLedger(supabase, electionIds, countsMap), 22_000, undefined);
 
     const result = elections
       .map((e) => {
