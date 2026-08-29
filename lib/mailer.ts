@@ -135,3 +135,212 @@ export async function sendEmail({
     html,
   });
 }
+
+/**
+ * Send ticket invite email for the 3-day event.
+ */
+export async function sendTicketEmail({
+  to,
+  name,
+  department,
+  isSpeMember,
+  isMembershipActive,
+  registrationId,
+}: {
+  to: string;
+  name: string;
+  department: string;
+  isSpeMember: boolean;
+  isMembershipActive: boolean | null;
+  registrationId: string;
+}) {
+  const shortId = registrationId.substring(0, 8).toUpperCase();
+  const membershipStatus = isSpeMember
+    ? isMembershipActive
+      ? "Active SPE Member"
+      : "Inactive SPE Member"
+    : "Guest (Waitlist)";
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+<body style="margin:0; padding:0; background:#f3f4f6; font-family:Arial,Helvetica,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f3f4f6; padding:40px 16px;">
+    <tr>
+      <td align="center">
+        <!-- TICKET CONTAINER TABLE -->
+        <table width="480" cellpadding="0" cellspacing="0" style="border-collapse:collapse; background:transparent;">
+          
+          <!-- TOP CARD -->
+          <tr>
+            <td style="padding:0;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff; border-radius:24px 24px 0 0; border:1px solid #e5e7eb; border-bottom:none; border-collapse:collapse;">
+                <!-- Header block -->
+                <tr>
+                  <td style="padding:28px 32px 20px; background:#111827; border-radius:22px 22px 0 0; text-align:center;">
+                    <p style="margin:0; font-size:10px; font-weight:800; letter-spacing:3px; color:#3b82f6; text-transform:uppercase;">SPE UI Student Chapter</p>
+                    <h2 style="margin:6px 0 0; font-size:20px; font-weight:900; color:#ffffff; letter-spacing:0.5px;">INDUSTRY WEEK 2026</h2>
+                    <p style="margin:4px 0 0; font-size:10px; font-weight:700; color:#9ca3af; letter-spacing:1px; text-transform:uppercase;">Official Event Ticket Invite</p>
+                  </td>
+                </tr>
+
+                <!-- Boarding Pass Transition Header -->
+                <tr>
+                  <td style="padding:28px 32px 20px;">
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td width="40%">
+                          <p style="margin:0; font-size:10px; font-weight:800; color:#9ca3af; text-transform:uppercase; letter-spacing:1px;">FROM</p>
+                          <p style="margin:4px 0 0; font-size:20px; font-weight:900; color:#111827; line-height:1.2;">SPE UI</p>
+                          <p style="margin:2px 0 0; font-size:11px; font-weight:700; color:#6b7280; white-space:nowrap;">Department of PE</p>
+                        </td>
+                        <td width="20%" align="center" style="vertical-align:middle;">
+                          <div style="background:#e0f2fe; color:#0284c7; font-size:9px; font-weight:800; padding:6px 12px; border-radius:20px; text-transform:uppercase; letter-spacing:1px; display:inline-block; white-space:nowrap;">
+                            3 DAYS
+                          </div>
+                        </td>
+                        <td width="40%" align="right">
+                          <p style="margin:0; font-size:10px; font-weight:800; color:#9ca3af; text-transform:uppercase; letter-spacing:1px;">TO</p>
+                          <p style="margin:4px 0 0; font-size:20px; font-weight:900; color:#111827; line-height:1.2;">PLLT ROOM</p>
+                          <p style="margin:2px 0 0; font-size:11px; font-weight:700; color:#6b7280; white-space:nowrap;">University of Ibadan</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- Grid Details block -->
+                <tr>
+                  <td style="padding:0 32px 24px;">
+                    <table width="100%" cellpadding="12" cellspacing="0" style="background:#f8fafc; border-radius:16px; border:1px solid #f1f5f9;">
+                      <tr>
+                        <td width="25%" align="left">
+                          <p style="margin:0; font-size:9px; font-weight:800; color:#9ca3af; text-transform:uppercase;">Day 1</p>
+                          <p style="margin:4px 0 0; font-size:12px; font-weight:800; color:#111827;">08:00 AM</p>
+                        </td>
+                        <td width="25%" align="left" style="border-left:1px solid #e2e8f0; padding-left:16px;">
+                          <p style="margin:0; font-size:9px; font-weight:800; color:#9ca3af; text-transform:uppercase;">Day 2</p>
+                          <p style="margin:4px 0 0; font-size:12px; font-weight:800; color:#111827;">09:00 AM</p>
+                        </td>
+                        <td width="25%" align="left" style="border-left:1px solid #e2e8f0; padding-left:16px;">
+                          <p style="margin:0; font-size:9px; font-weight:800; color:#9ca3af; text-transform:uppercase;">Day 3</p>
+                          <p style="margin:4px 0 0; font-size:12px; font-weight:800; color:#111827;">09:00 AM</p>
+                        </td>
+                        <td width="25%" align="left" style="border-left:1px solid #e2e8f0; padding-left:16px;">
+                          <p style="margin:0; font-size:9px; font-weight:800; color:#9ca3af; text-transform:uppercase;">Class</p>
+                          <p style="margin:4px 0 0; font-size:11px; font-weight:900; color:#2563eb; text-transform:uppercase;">ALL ACCESS</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- MIDDLE NOTCH & CONNECTION ROW -->
+          <tr>
+            <td style="padding:0;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="background:transparent; border-collapse:collapse; margin-top:-1px; margin-bottom:-1px;">
+                <tr>
+                  <!-- Left Notch -->
+                  <td width="16" style="background:#f3f4f6; height:24px; border-radius:0 12px 12px 0; border:1px solid #e5e7eb; border-left:none;">&nbsp;</td>
+                  <!-- Dashed Connection -->
+                  <td style="background:#ffffff; height:24px; vertical-align:middle; padding:0 8px;">
+                    <div style="border-top:2px dashed #cbd5e1; height:1px; line-height:1px; font-size:1px;">&nbsp;</div>
+                  </td>
+                  <!-- Right Notch -->
+                  <td width="16" style="background:#f3f4f6; height:24px; border-radius:12px 0 0 12px; border:1px solid #e5e7eb; border-right:none;">&nbsp;</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- BOTTOM CARD -->
+          <tr>
+            <td style="padding:0;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff; border-radius:0 0 24px 24px; border:1px solid #e5e7eb; border-top:none; border-collapse:collapse;">
+                <!-- Passenger Details -->
+                <tr>
+                  <td style="padding:24px 32px 20px;">
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td width="55%" style="vertical-align:top;">
+                          <p style="margin:0; font-size:9px; font-weight:800; color:#9ca3af; text-transform:uppercase; letter-spacing:1px;">PASSENGER / ATTENDEE</p>
+                          <p style="margin:4px 0 0; font-size:15px; font-weight:800; color:#111827;">${name}</p>
+                          <p style="margin:2px 0 0; font-size:11px; font-weight:700; color:#6b7280;">${to}</p>
+                        </td>
+                        <td width="45%" style="vertical-align:top; padding-left:16px;">
+                          <p style="margin:0; font-size:9px; font-weight:800; color:#9ca3af; text-transform:uppercase; letter-spacing:1px;">MEMBERSHIP</p>
+                          <p style="margin:4px 0 0; font-size:14px; font-weight:800; color:#1e40af; text-transform:uppercase;">${membershipStatus}</p>
+                          <p style="margin:2px 0 0; font-size:11px; font-weight:700; color:#6b7280;">${department}</p>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td colspan="2" style="padding-top:20px;">
+                          <p style="margin:0; font-size:9px; font-weight:800; color:#9ca3af; text-transform:uppercase; letter-spacing:1px;">TICKET ID</p>
+                          <p style="margin:4px 0 0; font-size:15px; font-weight:800; color:#111827; font-family:monospace; letter-spacing:1px;">SPEUI2026_${shortId}</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- Amber Notice Notice Box -->
+                <tr>
+                  <td style="padding:0 32px 32px; border-radius:0 0 22px 22px;">
+                    <table width="100%" cellpadding="12" cellspacing="0" style="background:#fffbeb; border-radius:16px; border:1px solid #fef3c7;">
+                      <tr>
+                        <td>
+                          <p style="margin:0; font-size:10px; font-weight:800; color:#78350f; text-transform:uppercase; letter-spacing:0.5px; padding-bottom:4px;">Important Entry Pass Notice</p>
+                          <p style="margin:0; font-size:11px; font-weight:600; color:#92400e; line-height:1.5;">
+                            Keep this ticket safe. You must present it at the entrance for verification, meal voucher claims, and attendance tracking across all 3 days.
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+  `.trim();
+
+  const text = [
+    `SPE UI STUDENT CHAPTER - INDUSTRY WEEK 2026`,
+    `=========================================`,
+    `3 DAY INVITE TICKET`,
+    ``,
+    `Attendee Name: ${name}`,
+    `Email Address: ${to}`,
+    `Department: ${department}`,
+    `Membership: ${membershipStatus}`,
+    `Ticket ID: SPEUI2026_${shortId}`,
+    ``,
+    `Access: 3 Day Access (Day 1, Day 2, Day 3)`,
+    ``,
+    `IMPORTANT NOTICE:`,
+    `Please keep this ticket email safe. It is required for verification at the entrance, meal claims, and checking in for all sessions.`,
+    ``,
+    `Society of Petroleum Engineers, University of Ibadan Student Chapter`,
+  ].join("\n");
+
+  await transporter.sendMail({
+    from: FROM_ADDRESS,
+    to,
+    subject: `Industry Week 2026 Event Ticket: ${name}`,
+    text,
+    html,
+  });
+}

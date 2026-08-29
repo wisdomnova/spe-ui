@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { sendTicketEmail } from "@/lib/mailer";
 
 // Initialize server-only Supabase client to bypass RLS policies securely
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -68,6 +69,22 @@ export async function POST(req: NextRequest) {
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    // Trigger ticket invite email trigger asynchronously
+    try {
+      sendTicketEmail({
+        to: email.trim().toLowerCase(),
+        name: name.trim(),
+        department: department.trim(),
+        isSpeMember: is_spe_member,
+        isMembershipActive: is_spe_member ? is_membership_active : null,
+        registrationId: data.id,
+      }).catch((err) => {
+        console.error("Failed to send ticket email async:", err);
+      });
+    } catch (err) {
+      console.error("Failed to trigger ticket email:", err);
     }
 
     return NextResponse.json({ success: true, id: data.id }, { status: 201 });
