@@ -1,5 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@supabase/supabase-js";
+
+// Initialize server-only Supabase client to bypass RLS policies securely
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseSecretKey = process.env.SUPABASE_SECRET_ROLE!;
+
+const supabaseServer = createClient(supabaseUrl, supabaseSecretKey, {
+  auth: {
+    autoRefreshToken: false,
+    persistSession: false,
+  },
+});
 
 export async function POST(req: NextRequest) {
   try {
@@ -41,7 +52,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseServer
       .from("event_registrations")
       .insert({
         event_name: event_name || "Industry Week '26",
