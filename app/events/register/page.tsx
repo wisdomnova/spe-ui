@@ -350,9 +350,6 @@ export default function EventRegisterPage() {
                     : "border-gray-100 bg-[#F9FAFB]"
                 }`}
               >
-                <div className="mb-6 mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-blue-600/10 border border-blue-500/20 text-blue-500 font-black text-2xl">
-                  ✓
-                </div>
                 <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl mb-3">
                   You Are Registered
                 </h2>
