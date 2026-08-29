@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function Header() {
+export default function Header({ isDark = false }: { isDark?: boolean }) {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
@@ -53,7 +53,13 @@ export default function Header() {
         </Link>
 
         <nav className="absolute left-1/2 -translate-x-1/2 hidden md:block">
-          <div className="flex items-center gap-10 rounded-2xl border border-white/20 bg-gray-50/50 px-12 py-4 shadow-[0_8px_32_rgba(0,0,0,0.06)] backdrop-blur-xl">
+          <div
+            className={`flex items-center gap-10 rounded-2xl border px-12 py-4 backdrop-blur-xl transition-colors duration-500 ${
+              isDark
+                ? "border-neutral-800/80 bg-neutral-900/70 shadow-[0_8px_32px_rgba(0,0,0,0.4)]"
+                : "border-white/20 bg-gray-50/50 shadow-[0_8px_32_rgba(0,0,0,0.06)]"
+            }`}
+          >
             {navLinks.map((link) => {
               const isActive = link.href === "/" 
                 ? pathname === "/" 
@@ -71,19 +77,21 @@ export default function Header() {
                     onMouseLeave={() => setActiveDropdown(null)}
                   >
                     <button
-                      className={`flex items-center gap-1 text-[15px] font-semibold transition-colors hover:text-blue-600 cursor-pointer ${
+                      className={`flex items-center gap-1 text-[15px] font-semibold transition-colors cursor-pointer ${
                         activeDropdown === link.name
-                          ? "text-blue-600"
+                          ? "text-blue-500"
                           : isActive
-                            ? "text-blue-600"
-                            : "text-gray-800"
+                            ? "text-blue-500"
+                            : isDark
+                              ? "text-gray-200 hover:text-white"
+                              : "text-gray-800 hover:text-blue-600"
                       }`}
                     >
                       {link.name}
                       <ChevronDown className={`h-4 w-4 transition-transform ${activeDropdown === link.name ? "rotate-180" : ""}`} />
                     </button>
                     {isActive && (
-                      <span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-blue-600" />
+                      <span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-blue-500" />
                     )}
                     
                     <AnimatePresence>
@@ -92,7 +100,11 @@ export default function Header() {
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: 10 }}
-                          className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-48 rounded-xl border border-white/20 bg-white/90 p-2 shadow-xl backdrop-blur-xl"
+                          className={`absolute top-full left-1/2 -translate-x-1/2 mt-2 w-48 rounded-xl border p-2 shadow-xl backdrop-blur-xl transition-colors ${
+                            isDark
+                              ? "border-neutral-800 bg-neutral-900/95 text-white"
+                              : "border-white/20 bg-white/90 text-gray-800"
+                          }`}
                         >
                           {link.dropdown.map((item) => {
                             const isItemActive = pathname.startsWith(item.href);
@@ -102,8 +114,10 @@ export default function Header() {
                                 href={item.href}
                                 className={`block rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
                                   isItemActive
-                                    ? "bg-blue-50 text-blue-600 font-bold"
-                                    : "text-gray-700 hover:bg-gray-100 hover:text-blue-600"
+                                    ? "bg-blue-600/10 text-blue-500 font-bold"
+                                    : isDark
+                                      ? "text-gray-300 hover:bg-neutral-800 hover:text-white"
+                                      : "text-gray-700 hover:bg-gray-100 hover:text-blue-600"
                                 }`}
                               >
                                 {item.name}
@@ -121,13 +135,17 @@ export default function Header() {
                 <Link
                   key={link.name}
                   href={link.href}
-                  className={`relative text-[15px] font-semibold transition-colors hover:text-blue-600 cursor-pointer ${
-                    isActive ? "text-blue-600" : "text-gray-800"
+                  className={`relative text-[15px] font-semibold transition-colors cursor-pointer ${
+                    isActive
+                      ? "text-blue-500"
+                      : isDark
+                        ? "text-gray-200 hover:text-white"
+                        : "text-gray-800 hover:text-blue-600"
                   }`}
                 >
                   {link.name}
                   {isActive && (
-                    <span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-blue-600" />
+                    <span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-blue-500" />
                   )}
                 </Link>
               );
@@ -138,7 +156,11 @@ export default function Header() {
         <div className="flex items-center md:hidden">
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="rounded-xl bg-gray-50 p-2 shadow-sm cursor-pointer text-black"
+            className={`rounded-xl p-2 shadow-sm cursor-pointer border transition-colors ${
+              isDark
+                ? "bg-neutral-900 border-neutral-800 text-white"
+                : "bg-gray-50 border-transparent text-black"
+            }`}
           >
             {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
@@ -154,7 +176,9 @@ export default function Header() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="fixed inset-0 z-40 bg-white pt-32 px-6 md:hidden overflow-y-auto"
+            className={`fixed inset-0 z-40 pt-32 px-6 md:hidden overflow-y-auto ${
+              isDark ? "bg-[#0A0A0A] text-white" : "bg-white text-black"
+            }`}
           >
             <nav className="flex flex-col gap-6">
               {navLinks.map((link) => {
@@ -168,8 +192,8 @@ export default function Header() {
                 <div key={link.name}>
                   {link.dropdown ? (
                     <div className="flex flex-col gap-4">
-                      <span className={`text-3xl font-bold ${isMobileActive ? "text-blue-600" : "text-gray-400"}`}>{link.name}</span>
-                      <div className="flex flex-col gap-4 pl-4 border-l-2 border-gray-100">
+                      <span className={`text-3xl font-bold ${isMobileActive ? "text-blue-500" : "text-gray-500"}`}>{link.name}</span>
+                      <div className={`flex flex-col gap-4 pl-4 border-l-2 ${isDark ? "border-neutral-800" : "border-gray-100"}`}>
                         {link.dropdown.map((item) => {
                           const isItemActive = pathname.startsWith(item.href);
                           return (
@@ -177,7 +201,7 @@ export default function Header() {
                             key={item.name}
                             href={item.href}
                             onClick={() => setIsOpen(false)}
-                            className={`text-2xl font-bold cursor-pointer ${isItemActive ? "text-blue-600" : "text-gray-900"}`}
+                            className={`text-2xl font-bold cursor-pointer ${isItemActive ? "text-blue-500" : isDark ? "text-white" : "text-gray-900"}`}
                           >
                             {item.name}
                           </Link>
@@ -189,7 +213,7 @@ export default function Header() {
                     <Link
                       href={link.href}
                       onClick={() => setIsOpen(false)}
-                      className={`text-3xl font-bold cursor-pointer ${isMobileActive ? "text-blue-600" : "text-gray-900"}`}
+                      className={`text-3xl font-bold cursor-pointer ${isMobileActive ? "text-blue-500" : isDark ? "text-white" : "text-gray-900"}`}
                     >
                       {link.name}
                     </Link>

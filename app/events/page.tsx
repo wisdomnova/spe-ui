@@ -302,11 +302,21 @@ export default function EventsPage() {
                   {event.description && (
                     <p className="text-sm text-gray-500 text-center line-clamp-2 max-w-md">{event.description}</p>
                   )}
-                  <span className={`mt-2 rounded-full px-5 py-1.5 text-xs font-bold uppercase tracking-widest ${
-                    event.status === 'Upcoming' ? 'bg-green-50 text-green-600 border border-green-100' : 'bg-gray-100 text-gray-500 border border-gray-200'
-                  }`}>
-                    {event.status}
-                  </span>
+                  <div className="mt-2 flex items-center gap-3">
+                    <span className={`rounded-full px-5 py-1.5 text-xs font-bold uppercase tracking-widest ${
+                      event.status === 'Upcoming' ? 'bg-green-50 text-green-600 border border-green-100' : 'bg-gray-100 text-gray-500 border border-gray-200'
+                    }`}>
+                      {event.status}
+                    </span>
+                    {event.status === 'Upcoming' && (
+                      <Link
+                        href="/events/register"
+                        className="rounded-full bg-blue-600 px-6 py-1.5 text-xs font-bold uppercase tracking-widest text-white transition-all hover:bg-blue-700 shadow-md shadow-blue-600/20"
+                      >
+                        Register Now
+                      </Link>
+                    )}
+                  </div>
                 </div>
               </motion.div>
               ))
