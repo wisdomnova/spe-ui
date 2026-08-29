@@ -11,7 +11,7 @@ import Link from "next/link";
 export default function EventRegisterPage() {
   const [formData, setFormData] = useState({
     name: "",
-    email: "",
+    matric_number: "",
     department: "",
     is_spe_member: null as boolean | null,
     is_membership_active: null as boolean | null,
@@ -39,8 +39,8 @@ export default function EventRegisterPage() {
       setErrorMsg("Please enter your full name.");
       return;
     }
-    if (!formData.email.trim() || !formData.email.includes("@")) {
-      setErrorMsg("Please enter a valid email address.");
+    if (!formData.matric_number.trim()) {
+      setErrorMsg("Please enter your matric number.");
       return;
     }
     if (!formData.department.trim()) {
@@ -159,21 +159,21 @@ export default function EventRegisterPage() {
                   />
                 </div>
 
-                {/* Email Address */}
+                {/* Matric Number */}
                 <div className="space-y-2">
                   <label
                     className={`block text-xs font-bold uppercase tracking-widest transition-colors duration-1000 ${
                       isDarkMode ? "text-gray-400" : "text-gray-500"
                     }`}
                   >
-                    Email Address
+                    Matric Number
                   </label>
                   <input
-                    type="email"
+                    type="text"
                     required
-                    placeholder="name@example.com"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    placeholder="e.g. 210123"
+                    value={formData.matric_number}
+                    onChange={(e) => setFormData({ ...formData, matric_number: e.target.value })}
                     className={`w-full rounded-2xl border px-6 py-4 text-sm font-semibold outline-none transition-all duration-500 ${
                       isDarkMode
                         ? "border-neutral-800 bg-[#1A1A1A] text-white focus:border-blue-600 placeholder-neutral-600"

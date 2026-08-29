@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const {
       name,
-      email,
+      matric_number,
       department,
       is_spe_member,
       is_membership_active,
@@ -30,8 +30,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Full name is required" }, { status: 400 });
     }
 
-    if (!email || typeof email !== "string" || !email.includes("@")) {
-      return NextResponse.json({ error: "A valid email address is required" }, { status: 400 });
+    if (!matric_number || typeof matric_number !== "string" || !matric_number.trim()) {
+      return NextResponse.json({ error: "Matric number is required" }, { status: 400 });
     }
 
     if (!department || typeof department !== "string" || !department.trim()) {
@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
       .insert({
         event_name: event_name || "Industry Week '26",
         name: name.trim(),
-        email: email.trim().toLowerCase(),
+        matric_number: matric_number.trim(),
         department: department.trim(),
         is_spe_member,
         is_membership_active: is_spe_member ? is_membership_active : null,
