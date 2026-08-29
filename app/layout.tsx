@@ -8,7 +8,7 @@ const hostGrotesk = Host_Grotesk({
   subsets: ["latin"],
 });
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://spe-ui.vercel.app";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://speui.org";
 const SITE_NAME = "SPE University of Ibadan Student Chapter";
 const SITE_DESCRIPTION =
   "The official website of the Society of Petroleum Engineers (SPE) Student Chapter at the University of Ibadan - connecting students to the global energy industry through technical development, leadership, and professional networking.";
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    siteName: SITE_NAME,
+    siteName: "SPE UI",
     title: SITE_NAME,
     description: SITE_DESCRIPTION,
     url: SITE_URL,
@@ -112,7 +112,15 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const jsonLd = {
+  const websiteJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "SPE UI",
+    alternateName: ["SPE University of Ibadan", "SPE-UI", "Society of Petroleum Engineers UI"],
+    url: SITE_URL,
+  };
+
+  const eduJsonLd = {
     "@context": "https://schema.org",
     "@type": "EducationalOrganization",
     name: "SPE University of Ibadan Student Chapter",
@@ -152,7 +160,11 @@ export default function RootLayout({
         </Script>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(eduJsonLd) }}
         />
         {children}
       </body>
