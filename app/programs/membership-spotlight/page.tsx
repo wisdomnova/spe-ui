@@ -47,10 +47,27 @@ export default function MembershipSpotlightPage() {
   const fetchSpotlights = async () => {
     const { data } = await supabase
       .from("spotlights")
-      .select("id, tags, created_at, team_member:team_members(name, role, department, image_url)")
+      .select("id, tags, created_at, name, role, department, image_url, team_member:team_members(name, role, department, image_url)")
       .order("created_at", { ascending: false });
 
-    setSpotlights((data as unknown as Spotlight[]) || []);
+    const formatted = data?.map((s) => {
+      if (!s.team_member) {
+        return {
+          id: s.id,
+          tags: s.tags,
+          created_at: s.created_at,
+          team_member: {
+            name: s.name,
+            role: s.role,
+            department: s.department,
+            image_url: s.image_url,
+          },
+        };
+      }
+      return s;
+    });
+
+    setSpotlights((formatted as unknown as Spotlight[]) || []);
     setLoading(false);
   };
 
@@ -141,58 +158,67 @@ export default function MembershipSpotlightPage() {
                 <motion.div
                   key={spotlight.id}
                   variants={itemVariants}
-                  className="group relative overflow-hidden rounded-[2.5rem] bg-white p-8 shadow-sm transition-all hover:shadow-xl text-center"
+                  className="group relative"
                 >
-                  {/* Star badge */}
-                  <div className="absolute top-6 right-6 text-yellow-200 group-hover:text-yellow-400 transition-colors">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                    </svg>
-                  </div>
-
-                  {/* Avatar */}
-                  <div className="mx-auto mb-6 h-28 w-28 overflow-hidden rounded-[2rem] bg-blue-50 border-4 border-white shadow-xl shadow-blue-100/40">
+                  {/* Image Container */}
+                  <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[2.5rem] bg-gray-100 shadow-sm transition-all duration-500 hover:shadow-2xl">
                     {spotlight.team_member?.image_url ? (
                       <Image
                         src={spotlight.team_member.image_url}
                         alt={spotlight.team_member.name}
-                        width={112}
-                        height={112}
-                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        fill
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                     ) : (
-                      <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-blue-100 to-blue-50">
-                        <span className="text-3xl font-black text-blue-300">
-                          {spotlight.team_member?.name?.charAt(0)?.toUpperCase() || "?"}
-                        </span>
+                      <>
+                        {/* Placeholder Background */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-blue-100 to-white" />
+                        <div className="absolute inset-0 flex items-center justify-center opacity-20 transition-opacity group-hover:opacity-10">
+                          <Image
+                            src="/speui.png"
+                            alt="SPE Logo placeholder"
+                            width={150}
+                            height={110}
+                            className="grayscale"
+                          />
+                        </div>
+                      </>
+                    )}
+
+                    {/* Star badge */}
+                    <div className="absolute top-6 right-6 z-10 rounded-2xl bg-white/85 p-3 backdrop-blur-md text-yellow-500 shadow-md">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                      </svg>
+                    </div>
+                  </div>
+
+                  {/* Info Container */}
+                  <div className="mt-8 flex flex-col items-center text-center">
+                    <h3 className="text-2xl font-bold text-gray-900 md:text-[28px]">
+                      {spotlight.team_member?.name || "Unknown"}
+                    </h3>
+                    <p className="mt-2 text-sm font-bold uppercase tracking-widest text-blue-600">
+                      {spotlight.team_member?.role || ""}
+                    </p>
+                    <p className="mt-1 text-xs font-medium text-gray-400">
+                      {spotlight.team_member?.department || ""}
+                    </p>
+
+                    {/* Tags */}
+                    {spotlight.tags && spotlight.tags.length > 0 && (
+                      <div className="flex flex-wrap items-center justify-center gap-2 mt-4">
+                        {spotlight.tags.map((tag) => (
+                          <span
+                            key={tag}
+                            className="rounded-full bg-blue-50 px-4 py-1.5 text-[9px] font-black text-blue-500 uppercase tracking-widest border border-blue-100"
+                          >
+                            {tag}
+                          </span>
+                        ))}
                       </div>
                     )}
                   </div>
-
-                  {/* Name & Role */}
-                  <h3 className="text-2xl font-bold text-gray-900 leading-tight mb-1">
-                    {spotlight.team_member?.name || "Unknown"}
-                  </h3>
-                  <p className="text-sm font-bold text-blue-600 uppercase tracking-wider mb-0.5">
-                    {spotlight.team_member?.role || ""}
-                  </p>
-                  <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-5">
-                    {spotlight.team_member?.department || ""}
-                  </p>
-
-                  {/* Tags */}
-                  {spotlight.tags && spotlight.tags.length > 0 && (
-                    <div className="flex flex-wrap items-center justify-center gap-2">
-                      {spotlight.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="rounded-full bg-blue-50 px-4 py-1.5 text-[10px] font-bold text-blue-500 uppercase tracking-wider"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  )}
                 </motion.div>
               ))}
             </motion.div>
