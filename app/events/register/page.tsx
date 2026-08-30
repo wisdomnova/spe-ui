@@ -222,37 +222,73 @@ export default function EventRegisterPage() {
                   >
                     Which days will you attend?
                   </label>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    {["Day 1 (Sept 14)", "Day 2 (Sept 15)", "Day 3 (Sept 16)"].map((dayName) => {
-                      const cleanDay = dayName.includes("Day 1") ? "Day 1" : dayName.includes("Day 2") ? "Day 2" : "Day 3";
-                      const isSelected = formData.selected_days.includes(cleanDay);
-                      return (
-                        <button
-                          key={dayName}
-                          type="button"
-                          onClick={() => {
-                            const updated = isSelected
-                              ? formData.selected_days.filter((d) => d !== cleanDay)
-                              : [...formData.selected_days, cleanDay];
-                            setFormData({ ...formData, selected_days: updated });
-                          }}
-                          className={`rounded-2xl p-4 text-left border transition-all duration-300 flex flex-col justify-between h-24 outline-none ${
-                            isSelected
-                              ? "bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-500/20"
-                              : isDarkMode
-                              ? "bg-[#1A1A1A] text-gray-300 border-neutral-800 hover:bg-neutral-800"
-                              : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
-                          }`}
-                        >
-                          <span className="text-[10px] font-black uppercase tracking-wider opacity-85">
-                            {cleanDay}
-                          </span>
-                          <span className="text-sm font-bold leading-tight">
-                            {dayName.substring(dayName.indexOf("("))}
-                          </span>
-                        </button>
-                      );
-                    })}
+                  <div className="space-y-3">
+                    {/* Row 1: Day 1 - 3 */}
+                    <div className="grid grid-cols-3 gap-3">
+                      {["Day 1 (Sept 14)", "Day 2 (Sept 15)", "Day 3 (Sept 16)"].map((dayName) => {
+                        const cleanDay = dayName.includes("Day 1") ? "Day 1" : dayName.includes("Day 2") ? "Day 2" : "Day 3";
+                        const isSelected = formData.selected_days.includes(cleanDay);
+                        return (
+                          <button
+                            key={dayName}
+                            type="button"
+                            onClick={() => {
+                              const updated = isSelected
+                                ? formData.selected_days.filter((d) => d !== cleanDay)
+                                : [...formData.selected_days, cleanDay];
+                              setFormData({ ...formData, selected_days: updated });
+                            }}
+                            className={`rounded-2xl p-4 text-left border transition-all duration-300 flex flex-col justify-between h-24 outline-none ${
+                              isSelected
+                                ? "bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-500/20"
+                                : isDarkMode
+                                ? "bg-[#1A1A1A] text-gray-300 border-neutral-800 hover:bg-neutral-800"
+                                : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
+                            }`}
+                          >
+                            <span className="text-[10px] font-black uppercase tracking-wider opacity-85">
+                              {cleanDay}
+                            </span>
+                            <span className="text-xs font-bold leading-tight">
+                              {dayName.substring(dayName.indexOf("("))}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                    {/* Row 2: Day 4 - 5 */}
+                    <div className="grid grid-cols-2 gap-3 sm:max-w-[66%]">
+                      {["Day 4 (Sept 17)", "Day 5 (Sept 18)"].map((dayName) => {
+                        const cleanDay = dayName.includes("Day 4") ? "Day 4" : "Day 5";
+                        const isSelected = formData.selected_days.includes(cleanDay);
+                        return (
+                          <button
+                            key={dayName}
+                            type="button"
+                            onClick={() => {
+                              const updated = isSelected
+                                ? formData.selected_days.filter((d) => d !== cleanDay)
+                                : [...formData.selected_days, cleanDay];
+                              setFormData({ ...formData, selected_days: updated });
+                            }}
+                            className={`rounded-2xl p-4 text-left border transition-all duration-300 flex flex-col justify-between h-24 outline-none ${
+                              isSelected
+                                ? "bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-500/20"
+                                : isDarkMode
+                                ? "bg-[#1A1A1A] text-gray-300 border-neutral-800 hover:bg-neutral-800"
+                                : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
+                            }`}
+                          >
+                            <span className="text-[10px] font-black uppercase tracking-wider opacity-85">
+                              {cleanDay}
+                            </span>
+                            <span className="text-xs font-bold leading-tight">
+                              {dayName.substring(dayName.indexOf("("))}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
 

@@ -158,6 +158,8 @@ export async function sendTicketEmail({
   const hasDay1 = selectedDays.includes("Day 1");
   const hasDay2 = selectedDays.includes("Day 2");
   const hasDay3 = selectedDays.includes("Day 3");
+  const hasDay4 = selectedDays.includes("Day 4");
+  const hasDay5 = selectedDays.includes("Day 5");
 
   const html = `
 <!DOCTYPE html>
@@ -198,7 +200,7 @@ export async function sendTicketEmail({
                         </td>
                         <td width="20%" align="center" style="vertical-align:middle;">
                           <div style="background:#f1f5f9; color:#475569; font-size:9px; font-weight:800; padding:6px 12px; border-radius:20px; text-transform:uppercase; letter-spacing:1px; display:inline-block; white-space:nowrap; border:1px solid #e2e8f0;">
-                            3 DAYS
+                            5 DAYS
                           </div>
                         </td>
                         <td width="40%" align="right">
@@ -211,26 +213,42 @@ export async function sendTicketEmail({
                   </td>
                 </tr>
 
-                <!-- Grid Details block (3 equal columns with dynamic selected day highlight opacity) -->
+                <!-- Grid Details block (2 rows of dynamic selected day highlight opacity to prevent smushing) -->
                 <tr>
                   <td style="padding:0 32px 24px;">
-                    <table width="100%" cellpadding="12" cellspacing="0" style="background:#f8fafc; border-radius:16px; border:1px solid #e2e8f0;">
-                      <tr>
+                    <table width="100%" cellpadding="12" cellspacing="0" style="background:#f8fafc; border-radius:16px; border:1px solid #e2e8f0; border-collapse:collapse;">
+                      <!-- Row 1: Day 1 - 3 -->
+                      <tr style="border-bottom:1px solid #e2e8f0;">
                         <!-- Day 1 Column -->
-                        <td width="33%" align="left" style="${hasDay1 ? '' : 'opacity:0.35;'}">
-                          <p style="margin:0; font-size:9px; font-weight:800; color:${hasDay1 ? '#94a3b8' : '#cbd5e1'}; text-transform:uppercase;">Day 1 (Sept 14)</p>
+                        <td width="33%" align="left" style="padding:12px; ${hasDay1 ? '' : 'opacity:0.35;'}">
+                          <p style="margin:0; font-size:9px; font-weight:800; color:${hasDay1 ? '#94a3b8' : '#cbd5e1'}; text-transform:uppercase;">Day 1 (Sep 14)</p>
                           <p style="margin:4px 0 0; font-size:12px; font-weight:800; color:${hasDay1 ? '#0f172a' : '#cbd5e1'};">09:00 AM</p>
                         </td>
                         <!-- Day 2 Column -->
-                        <td width="33%" align="left" style="border-left:1px solid #e2e8f0; padding-left:16px; ${hasDay2 ? '' : 'opacity:0.35;'}">
-                          <p style="margin:0; font-size:9px; font-weight:800; color:${hasDay2 ? '#94a3b8' : '#cbd5e1'}; text-transform:uppercase;">Day 2 (Sept 15)</p>
+                        <td width="33%" align="left" style="border-left:1px solid #e2e8f0; padding:12px 12px 12px 16px; ${hasDay2 ? '' : 'opacity:0.35;'}">
+                          <p style="margin:0; font-size:9px; font-weight:800; color:${hasDay2 ? '#94a3b8' : '#cbd5e1'}; text-transform:uppercase;">Day 2 (Sep 15)</p>
                           <p style="margin:4px 0 0; font-size:12px; font-weight:800; color:${hasDay2 ? '#0f172a' : '#cbd5e1'};">09:00 AM</p>
                         </td>
                         <!-- Day 3 Column -->
-                        <td width="34%" align="left" style="border-left:1px solid #e2e8f0; padding-left:16px; ${hasDay3 ? '' : 'opacity:0.35;'}">
-                          <p style="margin:0; font-size:9px; font-weight:800; color:${hasDay3 ? '#94a3b8' : '#cbd5e1'}; text-transform:uppercase;">Day 3 (Sept 16)</p>
+                        <td width="34%" align="left" style="border-left:1px solid #e2e8f0; padding:12px 12px 12px 16px; ${hasDay3 ? '' : 'opacity:0.35;'}">
+                          <p style="margin:0; font-size:9px; font-weight:800; color:${hasDay3 ? '#94a3b8' : '#cbd5e1'}; text-transform:uppercase;">Day 3 (Sep 16)</p>
                           <p style="margin:4px 0 0; font-size:12px; font-weight:800; color:${hasDay3 ? '#0f172a' : '#cbd5e1'};">09:00 AM</p>
                         </td>
+                      </tr>
+                      <!-- Row 2: Day 4 - 5 -->
+                      <tr>
+                        <!-- Day 4 Column -->
+                        <td width="33%" align="left" style="padding:12px; ${hasDay4 ? '' : 'opacity:0.35;'}">
+                          <p style="margin:0; font-size:9px; font-weight:800; color:${hasDay4 ? '#94a3b8' : '#cbd5e1'}; text-transform:uppercase;">Day 4 (Sep 17)</p>
+                          <p style="margin:4px 0 0; font-size:12px; font-weight:800; color:${hasDay4 ? '#0f172a' : '#cbd5e1'};">09:00 AM</p>
+                        </td>
+                        <!-- Day 5 Column -->
+                        <td width="33%" align="left" style="border-left:1px solid #e2e8f0; padding:12px 12px 12px 16px; ${hasDay5 ? '' : 'opacity:0.35;'}">
+                          <p style="margin:0; font-size:9px; font-weight:800; color:${hasDay5 ? '#94a3b8' : '#cbd5e1'}; text-transform:uppercase;">Day 5 (Sep 18)</p>
+                          <p style="margin:4px 0 0; font-size:12px; font-weight:800; color:${hasDay5 ? '#0f172a' : '#cbd5e1'};">09:00 AM</p>
+                        </td>
+                        <!-- Spacer cell -->
+                        <td width="34%" style="border-left:1px solid #e2e8f0; padding:12px;">&nbsp;</td>
                       </tr>
                     </table>
                   </td>
@@ -300,7 +318,7 @@ export async function sendTicketEmail({
   const text = [
     `SPE UI STUDENT CHAPTER - INDUSTRY WEEK 2026`,
     `=========================================`,
-    `3 DAY INVITE TICKET`,
+    `5 DAY INVITE TICKET`,
     ``,
     `Attendee Name: ${name}`,
     `Email Address: ${to}`,
@@ -311,6 +329,8 @@ export async function sendTicketEmail({
     `- Day 1 (Sept 14): ${hasDay1 ? "Registered" : "Not Registered"}`,
     `- Day 2 (Sept 15): ${hasDay2 ? "Registered" : "Not Registered"}`,
     `- Day 3 (Sept 16): ${hasDay3 ? "Registered" : "Not Registered"}`,
+    `- Day 4 (Sept 17): ${hasDay4 ? "Registered" : "Not Registered"}`,
+    `- Day 5 (Sept 18): ${hasDay5 ? "Registered" : "Not Registered"}`,
     ``,
     `Society of Petroleum Engineers, University of Ibadan Student Chapter`,
   ].join("\n");
