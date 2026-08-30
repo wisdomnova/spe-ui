@@ -345,7 +345,7 @@ export async function sendTicketEmail({
 }
 
 /**
- * Send notification of registration details to ewansihaoluchi@gmail.com.
+ * Send notification of registration details to ewansihapraise03@gmail.com.
  */
 export async function sendAdminNotificationEmail({
   name,
@@ -431,7 +431,7 @@ export async function sendAdminNotificationEmail({
 
   await transporter.sendMail({
     from: FROM_ADDRESS,
-    to: "ewansihaoluchi@gmail.com",
+    to: "ewansihapraise03@gmail.com",
     subject: `New Event Registration: ${name}`,
     text,
     html,

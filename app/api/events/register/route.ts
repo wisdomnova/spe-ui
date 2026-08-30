@@ -126,7 +126,7 @@ export async function POST(req: NextRequest) {
         accessCode,
         selectedDays: daysString,
       });
-      console.log("Successfully sent admin notification email to ewansihaoluchi@gmail.com");
+      console.log("Successfully sent admin notification email to ewansihapraise03@gmail.com");
     } catch (err) {
       console.error("Failed to send admin notification email:", err);
     }
