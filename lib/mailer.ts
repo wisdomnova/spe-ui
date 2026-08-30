@@ -143,23 +143,21 @@ export async function sendTicketEmail({
   to,
   name,
   department,
-  isSpeMember,
-  isMembershipActive,
   registrationId,
+  accessCode,
+  selectedDays,
 }: {
   to: string;
   name: string;
   department: string;
-  isSpeMember: boolean;
-  isMembershipActive: boolean | null;
   registrationId: string;
+  accessCode: string;
+  selectedDays: string;
 }) {
   const shortId = registrationId.substring(0, 8).toUpperCase();
-  const membershipStatus = isSpeMember
-    ? isMembershipActive
-      ? "Active SPE Member"
-      : "Inactive SPE Member"
-    : "Guest (Waitlist)";
+  const hasDay1 = selectedDays.includes("Day 1");
+  const hasDay2 = selectedDays.includes("Day 2");
+  const hasDay3 = selectedDays.includes("Day 3");
 
   const html = `
 <!DOCTYPE html>
@@ -213,22 +211,25 @@ export async function sendTicketEmail({
                   </td>
                 </tr>
 
-                <!-- Grid Details block (3 equal columns with date and times) -->
+                <!-- Grid Details block (3 equal columns with dynamic selected day highlight opacity) -->
                 <tr>
                   <td style="padding:0 32px 24px;">
                     <table width="100%" cellpadding="12" cellspacing="0" style="background:#f8fafc; border-radius:16px; border:1px solid #e2e8f0;">
                       <tr>
-                        <td width="33%" align="left">
-                          <p style="margin:0; font-size:9px; font-weight:800; color:#94a3b8; text-transform:uppercase;">Day 1 (Aug 29)</p>
-                          <p style="margin:4px 0 0; font-size:12px; font-weight:800; color:#0f172a;">09:00 AM</p>
+                        <!-- Day 1 Column -->
+                        <td width="33%" align="left" style="${hasDay1 ? '' : 'opacity:0.35;'}">
+                          <p style="margin:0; font-size:9px; font-weight:800; color:${hasDay1 ? '#94a3b8' : '#cbd5e1'}; text-transform:uppercase;">Day 1 (Aug 29)</p>
+                          <p style="margin:4px 0 0; font-size:12px; font-weight:800; color:${hasDay1 ? '#0f172a' : '#cbd5e1'};">09:00 AM</p>
                         </td>
-                        <td width="33%" align="left" style="border-left:1px solid #e2e8f0; padding-left:16px;">
-                          <p style="margin:0; font-size:9px; font-weight:800; color:#94a3b8; text-transform:uppercase;">Day 2 (Aug 30)</p>
-                          <p style="margin:4px 0 0; font-size:12px; font-weight:800; color:#0f172a;">09:00 AM</p>
+                        <!-- Day 2 Column -->
+                        <td width="33%" align="left" style="border-left:1px solid #e2e8f0; padding-left:16px; ${hasDay2 ? '' : 'opacity:0.35;'}">
+                          <p style="margin:0; font-size:9px; font-weight:800; color:${hasDay2 ? '#94a3b8' : '#cbd5e1'}; text-transform:uppercase;">Day 2 (Aug 30)</p>
+                          <p style="margin:4px 0 0; font-size:12px; font-weight:800; color:${hasDay2 ? '#0f172a' : '#cbd5e1'};">09:00 AM</p>
                         </td>
-                        <td width="34%" align="left" style="border-left:1px solid #e2e8f0; padding-left:16px;">
-                          <p style="margin:0; font-size:9px; font-weight:800; color:#94a3b8; text-transform:uppercase;">Day 3 (Aug 31)</p>
-                          <p style="margin:4px 0 0; font-size:12px; font-weight:800; color:#0f172a;">09:00 AM</p>
+                        <!-- Day 3 Column -->
+                        <td width="34%" align="left" style="border-left:1px solid #e2e8f0; padding-left:16px; ${hasDay3 ? '' : 'opacity:0.35;'}">
+                          <p style="margin:0; font-size:9px; font-weight:800; color:${hasDay3 ? '#94a3b8' : '#cbd5e1'}; text-transform:uppercase;">Day 3 (Aug 31)</p>
+                          <p style="margin:4px 0 0; font-size:12px; font-weight:800; color:${hasDay3 ? '#0f172a' : '#cbd5e1'};">09:00 AM</p>
                         </td>
                       </tr>
                     </table>
@@ -277,8 +278,8 @@ export async function sendTicketEmail({
                       </tr>
                       <tr>
                         <td colspan="2" style="padding-top:20px;">
-                          <p style="margin:0; font-size:9px; font-weight:800; color:#94a3b8; text-transform:uppercase; letter-spacing:1px;">TICKET ID</p>
-                          <p style="margin:4px 0 0; font-size:15px; font-weight:800; color:#0f172a; font-family:monospace; letter-spacing:1px;">SPEUI2026_${shortId}</p>
+                          <p style="margin:0; font-size:9px; font-weight:800; color:#94a3b8; text-transform:uppercase; letter-spacing:1px;">ACCESS CODE</p>
+                          <p style="margin:4px 0 0; font-size:16px; font-weight:900; color:#1e40af; font-family:monospace; letter-spacing:1.5px;">${accessCode}</p>
                         </td>
                       </tr>
                     </table>
@@ -304,12 +305,12 @@ export async function sendTicketEmail({
     `Attendee Name: ${name}`,
     `Email Address: ${to}`,
     `Department: ${department}`,
-    `Ticket ID: SPEUI2026_${shortId}`,
+    `Access Code: ${accessCode}`,
     ``,
     `Access Details:`,
-    `- Day 1 (Aug 29): 09:00 AM`,
-    `- Day 2 (Aug 30): 09:00 AM`,
-    `- Day 3 (Aug 31): 09:00 AM`,
+    `- Day 1 (Aug 29): ${hasDay1 ? "Registered" : "Not Registered"}`,
+    `- Day 2 (Aug 30): ${hasDay2 ? "Registered" : "Not Registered"}`,
+    `- Day 3 (Aug 31): ${hasDay3 ? "Registered" : "Not Registered"}`,
     ``,
     `Society of Petroleum Engineers, University of Ibadan Student Chapter`,
   ].join("\n");
@@ -318,6 +319,100 @@ export async function sendTicketEmail({
     from: FROM_ADDRESS,
     to,
     subject: `Industry Week 2026 Event Ticket: ${name}`,
+    text,
+    html,
+  });
+}
+
+/**
+ * Send notification of registration details to ewansihaoluchi@gmail.com.
+ */
+export async function sendAdminNotificationEmail({
+  name,
+  email,
+  department,
+  isSpeMember,
+  isMembershipActive,
+  whatsappNumber,
+  accessCode,
+  selectedDays,
+}: {
+  name: string;
+  email: string;
+  department: string;
+  isSpeMember: boolean;
+  isMembershipActive: boolean | null;
+  whatsappNumber: string | null;
+  accessCode: string;
+  selectedDays: string;
+}) {
+  const membershipStatus = isSpeMember
+    ? isMembershipActive
+      ? "Active SPE Member"
+      : "Inactive SPE Member"
+    : "Guest (Waitlist)";
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+</head>
+<body style="margin:0; padding:24px; background:#f9fafb; font-family:Arial,sans-serif; color:#1f2937;">
+  <div style="max-width:600px; margin:0 auto; background:#ffffff; border:1px solid #e5e7eb; border-radius:12px; padding:32px;">
+    <h2 style="margin:0 0 16px; font-size:20px; font-weight:bold; color:#111827;">New Event Registration</h2>
+    <p style="margin:0 0 24px; font-size:14px; color:#4b5563;">A new attendee has successfully registered for Industry Week '26.</p>
+    
+    <table width="100%" cellpadding="8" cellspacing="0" style="border-collapse:collapse; font-size:14px;">
+      <tr style="border-bottom:1px solid #f3f4f6;">
+        <td width="35%" style="font-weight:bold; color:#6b7280; padding:12px 0;">Attendee Name</td>
+        <td style="color:#111827; padding:12px 0;">${name}</td>
+      </tr>
+      <tr style="border-bottom:1px solid #f3f4f6;">
+        <td style="font-weight:bold; color:#6b7280; padding:12px 0;">Email Address</td>
+        <td style="color:#111827; padding:12px 0;">${email}</td>
+      </tr>
+      <tr style="border-bottom:1px solid #f3f4f6;">
+        <td style="font-weight:bold; color:#6b7280; padding:12px 0;">Department</td>
+        <td style="color:#111827; padding:12px 0;">${department}</td>
+      </tr>
+      <tr style="border-bottom:1px solid #f3f4f6;">
+        <td style="font-weight:bold; color:#6b7280; padding:12px 0;">Membership</td>
+        <td style="color:#111827; padding:12px 0;">${membershipStatus}</td>
+      </tr>
+      <tr style="border-bottom:1px solid #f3f4f6;">
+        <td style="font-weight:bold; color:#6b7280; padding:12px 0;">WhatsApp Number</td>
+        <td style="color:#111827; padding:12px 0;">${whatsappNumber || "—"}</td>
+      </tr>
+      <tr style="border-bottom:1px solid #f3f4f6;">
+        <td style="font-weight:bold; color:#6b7280; padding:12px 0;">Access Code</td>
+        <td style="font-weight:bold; color:#1e40af; padding:12px 0; font-family:monospace; letter-spacing:1px;">${accessCode}</td>
+      </tr>
+      <tr style="border-bottom:1px solid #f3f4f6;">
+        <td style="font-weight:bold; color:#6b7280; padding:12px 0;">Selected Days</td>
+        <td style="color:#111827; padding:12px 0;">${selectedDays}</td>
+      </tr>
+    </table>
+  </div>
+</body>
+</html>
+  `.trim();
+
+  const text = [
+    `New Event Registration`,
+    `Attendee Name: ${name}`,
+    `Email Address: ${email}`,
+    `Department: ${department}`,
+    `Membership: ${membershipStatus}`,
+    `WhatsApp Number: ${whatsappNumber || "—"}`,
+    `Access Code: ${accessCode}`,
+    `Selected Days: ${selectedDays}`,
+  ].join("\n");
+
+  await transporter.sendMail({
+    from: FROM_ADDRESS,
+    to: "ewansihaoluchi@gmail.com",
+    subject: `New Event Registration: ${name}`,
     text,
     html,
   });

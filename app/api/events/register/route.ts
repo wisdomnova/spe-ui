@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { sendTicketEmail } from "@/lib/mailer";
+import { sendTicketEmail, sendAdminNotificationEmail } from "@/lib/mailer";
 
 // Initialize server-only Supabase client to bypass RLS policies securely
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -13,6 +13,15 @@ const supabaseServer = createClient(supabaseUrl, supabaseSecretKey, {
   },
 });
 
+function generateAccessCode() {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let code = "";
+  for (let i = 0; i < 6; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return `SPE-${code}`;
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -24,6 +33,7 @@ export async function POST(req: NextRequest) {
       is_membership_active,
       whatsapp_number,
       event_name,
+      selected_days,
     } = body;
 
     // Basic Validations
@@ -53,6 +63,11 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    const accessCode = generateAccessCode();
+    const daysString = Array.isArray(selected_days)
+      ? selected_days.join(", ")
+      : (selected_days || "Day 1, Day 2, Day 3");
+
     const { data, error } = await supabaseServer
       .from("event_registrations")
       .insert({
@@ -63,6 +78,8 @@ export async function POST(req: NextRequest) {
         is_spe_member,
         is_membership_active: is_spe_member ? is_membership_active : null,
         whatsapp_number: is_spe_member ? null : whatsapp_number.trim(),
+        access_code: accessCode,
+        selected_days: daysString,
       })
       .select("id")
       .single();
@@ -77,9 +94,9 @@ export async function POST(req: NextRequest) {
         to: email.trim().toLowerCase(),
         name: name.trim(),
         department: department.trim(),
-        isSpeMember: is_spe_member,
-        isMembershipActive: is_spe_member ? is_membership_active : null,
         registrationId: data.id,
+        accessCode,
+        selectedDays: daysString,
       }).catch((err) => {
         console.error("Failed to send ticket email async:", err);
       });
@@ -87,7 +104,25 @@ export async function POST(req: NextRequest) {
       console.error("Failed to trigger ticket email:", err);
     }
 
-    return NextResponse.json({ success: true, id: data.id }, { status: 201 });
+    // Trigger admin notification email asynchronously
+    try {
+      sendAdminNotificationEmail({
+        name: name.trim(),
+        email: email.trim().toLowerCase(),
+        department: department.trim(),
+        isSpeMember: is_spe_member,
+        isMembershipActive: is_spe_member ? is_membership_active : null,
+        whatsappNumber: is_spe_member ? null : whatsapp_number.trim(),
+        accessCode,
+        selectedDays: daysString,
+      }).catch((err) => {
+        console.error("Failed to send admin notification email async:", err);
+      });
+    } catch (err) {
+      console.error("Failed to trigger admin notification email:", err);
+    }
+
+    return NextResponse.json({ success: true, id: data.id, access_code: accessCode }, { status: 201 });
   } catch {
     return NextResponse.json({ error: "Failed to submit registration" }, { status: 500 });
   }

@@ -16,12 +16,14 @@ export default function EventRegisterPage() {
     is_spe_member: null as boolean | null,
     is_membership_active: null as boolean | null,
     whatsapp_number: "",
+    selected_days: [] as string[],
   });
 
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [generatedAccessCode, setGeneratedAccessCode] = useState("");
 
   useEffect(() => {
     // Trigger smooth animated transition into dark mode on page load
@@ -52,6 +54,11 @@ export default function EventRegisterPage() {
       return;
     }
 
+    if (formData.selected_days.length === 0) {
+      setErrorMsg("Please select at least one day you plan to attend.");
+      return;
+    }
+
     if (formData.is_spe_member) {
       if (formData.is_membership_active === null) {
         setErrorMsg("Please indicate if your SPE membership is currently active.");
@@ -78,6 +85,7 @@ export default function EventRegisterPage() {
       if (!res.ok) {
         setErrorMsg(data.error || "Submission failed. Please try again.");
       } else {
+        setGeneratedAccessCode(data.access_code || "");
         setIsSuccess(true);
       }
     } catch {
@@ -203,6 +211,49 @@ export default function EventRegisterPage() {
                         : "border-gray-200 bg-white text-gray-900 focus:border-blue-600 placeholder-gray-300"
                     }`}
                   />
+                </div>
+
+                {/* Select Days to Attend */}
+                <div className="space-y-3">
+                  <label
+                    className={`block text-xs font-bold uppercase tracking-widest transition-colors duration-1000 ${
+                      isDarkMode ? "text-gray-400" : "text-gray-500"
+                    }`}
+                  >
+                    Which days will you attend?
+                  </label>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    {["Day 1 (Aug 29)", "Day 2 (Aug 30)", "Day 3 (Aug 31)"].map((dayName) => {
+                      const cleanDay = dayName.includes("Day 1") ? "Day 1" : dayName.includes("Day 2") ? "Day 2" : "Day 3";
+                      const isSelected = formData.selected_days.includes(cleanDay);
+                      return (
+                        <button
+                          key={dayName}
+                          type="button"
+                          onClick={() => {
+                            const updated = isSelected
+                              ? formData.selected_days.filter((d) => d !== cleanDay)
+                              : [...formData.selected_days, cleanDay];
+                            setFormData({ ...formData, selected_days: updated });
+                          }}
+                          className={`rounded-2xl p-4 text-left border transition-all duration-300 flex flex-col justify-between h-24 outline-none ${
+                            isSelected
+                              ? "bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-500/20"
+                              : isDarkMode
+                              ? "bg-[#1A1A1A] text-gray-300 border-neutral-800 hover:bg-neutral-800"
+                              : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
+                          }`}
+                        >
+                          <span className="text-[10px] font-black uppercase tracking-wider opacity-85">
+                            {cleanDay}
+                          </span>
+                          <span className="text-sm font-bold leading-tight">
+                            {dayName.substring(dayName.indexOf("("))}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
 
                 {/* SPE Membership Selector */}
@@ -358,6 +409,15 @@ export default function EventRegisterPage() {
                     ? "Thank you for registering for Industry Week 2026. See you at the department!"
                     : "You have been added to the Industry Week priority waitlist. We will notify you on WhatsApp."}
                 </p>
+
+                {/* Access Code Box */}
+                {generatedAccessCode && (
+                  <div className="mb-10 p-6 rounded-[2rem] bg-neutral-900 border border-neutral-800 max-w-sm mx-auto">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-blue-500 mb-1">YOUR ACCESS CODE</p>
+                    <p className="text-3xl font-black tracking-widest text-white font-mono uppercase">{generatedAccessCode}</p>
+                    <p className="text-[10px] text-gray-500 font-bold mt-2">Write this down or save it for entry verification</p>
+                  </div>
+                )}
 
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                   <Link
