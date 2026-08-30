@@ -406,7 +406,7 @@ export default function EventRegisterPage() {
                 </h2>
                 <p className="text-base text-gray-400 mb-8 max-w-md mx-auto font-medium">
                   {formData.is_spe_member
-                    ? "Thank you for registering for Industry Week 2026. See you at the department!"
+                    ? "Thank you for registering for Industry Week 2026. See you at the event!"
                     : "You have been added to the Industry Week priority waitlist. We will notify you on WhatsApp."}
                 </p>
 

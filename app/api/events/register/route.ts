@@ -63,6 +63,17 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // Check if registration already exists for this email to prevent duplicates
+    const { data: existingReg } = await supabaseServer
+      .from("event_registrations")
+      .select("id")
+      .eq("email", email.trim().toLowerCase())
+      .limit(1);
+
+    if (existingReg && existingReg.length > 0) {
+      return NextResponse.json({ error: "This email address is already registered." }, { status: 400 });
+    }
+
     const accessCode = generateAccessCode();
     const daysString = Array.isArray(selected_days)
       ? selected_days.join(", ")
