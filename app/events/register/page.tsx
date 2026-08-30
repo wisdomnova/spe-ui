@@ -223,7 +223,7 @@ export default function EventRegisterPage() {
                     Which days will you attend?
                   </label>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    {["Day 1 (Aug 29)", "Day 2 (Aug 30)", "Day 3 (Aug 31)"].map((dayName) => {
+                    {["Day 1 (Sept 14)", "Day 2 (Sept 15)", "Day 3 (Sept 16)"].map((dayName) => {
                       const cleanDay = dayName.includes("Day 1") ? "Day 1" : dayName.includes("Day 2") ? "Day 2" : "Day 3";
                       const isSelected = formData.selected_days.includes(cleanDay);
                       return (

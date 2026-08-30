@@ -99,25 +99,24 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    // Trigger ticket invite email trigger asynchronously
+    // Trigger ticket invite email trigger
     try {
-      sendTicketEmail({
+      await sendTicketEmail({
         to: email.trim().toLowerCase(),
         name: name.trim(),
         department: department.trim(),
         registrationId: data.id,
         accessCode,
         selectedDays: daysString,
-      }).catch((err) => {
-        console.error("Failed to send ticket email async:", err);
       });
+      console.log("Successfully sent ticket email to:", email);
     } catch (err) {
-      console.error("Failed to trigger ticket email:", err);
+      console.error("Failed to send ticket email:", err);
     }
 
-    // Trigger admin notification email asynchronously
+    // Trigger admin notification email
     try {
-      sendAdminNotificationEmail({
+      await sendAdminNotificationEmail({
         name: name.trim(),
         email: email.trim().toLowerCase(),
         department: department.trim(),
@@ -126,11 +125,10 @@ export async function POST(req: NextRequest) {
         whatsappNumber: is_spe_member ? null : whatsapp_number.trim(),
         accessCode,
         selectedDays: daysString,
-      }).catch((err) => {
-        console.error("Failed to send admin notification email async:", err);
       });
+      console.log("Successfully sent admin notification email to ewansihaoluchi@gmail.com");
     } catch (err) {
-      console.error("Failed to trigger admin notification email:", err);
+      console.error("Failed to send admin notification email:", err);
     }
 
     return NextResponse.json({ success: true, id: data.id, access_code: accessCode }, { status: 201 });

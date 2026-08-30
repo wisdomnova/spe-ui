@@ -218,17 +218,17 @@ export async function sendTicketEmail({
                       <tr>
                         <!-- Day 1 Column -->
                         <td width="33%" align="left" style="${hasDay1 ? '' : 'opacity:0.35;'}">
-                          <p style="margin:0; font-size:9px; font-weight:800; color:${hasDay1 ? '#94a3b8' : '#cbd5e1'}; text-transform:uppercase;">Day 1 (Aug 29)</p>
+                          <p style="margin:0; font-size:9px; font-weight:800; color:${hasDay1 ? '#94a3b8' : '#cbd5e1'}; text-transform:uppercase;">Day 1 (Sept 14)</p>
                           <p style="margin:4px 0 0; font-size:12px; font-weight:800; color:${hasDay1 ? '#0f172a' : '#cbd5e1'};">09:00 AM</p>
                         </td>
                         <!-- Day 2 Column -->
                         <td width="33%" align="left" style="border-left:1px solid #e2e8f0; padding-left:16px; ${hasDay2 ? '' : 'opacity:0.35;'}">
-                          <p style="margin:0; font-size:9px; font-weight:800; color:${hasDay2 ? '#94a3b8' : '#cbd5e1'}; text-transform:uppercase;">Day 2 (Aug 30)</p>
+                          <p style="margin:0; font-size:9px; font-weight:800; color:${hasDay2 ? '#94a3b8' : '#cbd5e1'}; text-transform:uppercase;">Day 2 (Sept 15)</p>
                           <p style="margin:4px 0 0; font-size:12px; font-weight:800; color:${hasDay2 ? '#0f172a' : '#cbd5e1'};">09:00 AM</p>
                         </td>
                         <!-- Day 3 Column -->
                         <td width="34%" align="left" style="border-left:1px solid #e2e8f0; padding-left:16px; ${hasDay3 ? '' : 'opacity:0.35;'}">
-                          <p style="margin:0; font-size:9px; font-weight:800; color:${hasDay3 ? '#94a3b8' : '#cbd5e1'}; text-transform:uppercase;">Day 3 (Aug 31)</p>
+                          <p style="margin:0; font-size:9px; font-weight:800; color:${hasDay3 ? '#94a3b8' : '#cbd5e1'}; text-transform:uppercase;">Day 3 (Sept 16)</p>
                           <p style="margin:4px 0 0; font-size:12px; font-weight:800; color:${hasDay3 ? '#0f172a' : '#cbd5e1'};">09:00 AM</p>
                         </td>
                       </tr>
@@ -308,9 +308,9 @@ export async function sendTicketEmail({
     `Access Code: ${accessCode}`,
     ``,
     `Access Details:`,
-    `- Day 1 (Aug 29): ${hasDay1 ? "Registered" : "Not Registered"}`,
-    `- Day 2 (Aug 30): ${hasDay2 ? "Registered" : "Not Registered"}`,
-    `- Day 3 (Aug 31): ${hasDay3 ? "Registered" : "Not Registered"}`,
+    `- Day 1 (Sept 14): ${hasDay1 ? "Registered" : "Not Registered"}`,
+    `- Day 2 (Sept 15): ${hasDay2 ? "Registered" : "Not Registered"}`,
+    `- Day 3 (Sept 16): ${hasDay3 ? "Registered" : "Not Registered"}`,
     ``,
     `Society of Petroleum Engineers, University of Ibadan Student Chapter`,
   ].join("\n");
