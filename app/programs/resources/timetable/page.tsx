@@ -17,6 +17,7 @@ import {
   ArrowLeft,
   Send,
   Calendar,
+  Download,
 } from "lucide-react";
 import Link from "next/link";
 import Header from "@/components/Header";
@@ -579,6 +580,49 @@ export default function TimetablePage() {
   const [deletingCourse, setDeletingCourse] = useState<Course | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  /* Export timetable to CSV file */
+  const downloadTimetableCSV = () => {
+    if (!timetable || !timetable.courses || timetable.courses.length === 0) return;
+
+    const headers = ["Course Name", "Day", "Start Time", "End Time", "Notes"];
+
+    const dayOrder = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const sortedCourses = [...timetable.courses].sort((a, b) => {
+      const dayDiff = dayOrder.indexOf(a.day) - dayOrder.indexOf(b.day);
+      if (dayDiff !== 0) return dayDiff;
+      return a.start_time.localeCompare(b.start_time);
+    });
+
+    const rows = sortedCourses.map((c) => {
+      const notesText = (c.course_notes || [])
+        .map((n) => n.content.replace(/"/g, '""'))
+        .join(" | ");
+
+      return [
+        `"${c.name.replace(/"/g, '""')}"`,
+        `"${DAY_LABELS[c.day] || c.day}"`,
+        `"${formatTime(c.start_time)}"`,
+        `"${formatTime(c.end_time)}"`,
+        `"${notesText}"`,
+      ];
+    });
+
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute(
+      "download",
+      `${level}L_${type}_timetable.csv`
+    );
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   /* Fetch timetable */
   const fetchTimetable = useCallback(async () => {
     setLoading(true);
@@ -719,17 +763,28 @@ export default function TimetablePage() {
                 </span>
               )}
             </p>
-            <button
-              onClick={() => {
-                setEditingCourse(null);
-                setShowForm(true);
-              }}
-              disabled={loading || !timetable}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 text-white text-xs font-bold hover:bg-blue-700 transition-colors disabled:opacity-50 shadow-lg shadow-blue-200"
-            >
-              <Plus size={14} />
-              Add Course
-            </button>
+            <div className="flex items-center gap-2">
+              {timetable && (timetable.courses ?? []).length > 0 && (
+                <button
+                  onClick={downloadTimetableCSV}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white border border-gray-200 text-gray-600 hover:text-blue-600 hover:border-blue-200 text-xs font-bold transition-all outline-none"
+                >
+                  <Download size={14} />
+                  Download CSV
+                </button>
+              )}
+              <button
+                onClick={() => {
+                  setEditingCourse(null);
+                  setShowForm(true);
+                }}
+                disabled={loading || !timetable}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 text-white text-xs font-bold hover:bg-blue-700 transition-colors disabled:opacity-50 shadow-lg shadow-blue-200"
+              >
+                <Plus size={14} />
+                Add Course
+              </button>
+            </div>
           </div>
 
           {/* Day tabs */}
