@@ -45,22 +45,24 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "A valid email address is required" }, { status: 400 });
     }
 
+    if (!whatsapp_number || typeof whatsapp_number !== "string" || !whatsapp_number.trim()) {
+      return NextResponse.json({ error: "Phone / WhatsApp number is required" }, { status: 400 });
+    }
+
     if (!department || typeof department !== "string" || !department.trim()) {
       return NextResponse.json({ error: "Department is required" }, { status: 400 });
+    }
+
+    if (!selected_days || (Array.isArray(selected_days) && selected_days.length === 0)) {
+      return NextResponse.json({ error: "Please select at least one day to attend" }, { status: 400 });
     }
 
     if (typeof is_spe_member !== "boolean") {
       return NextResponse.json({ error: "SPE membership selection is required" }, { status: 400 });
     }
 
-    if (is_spe_member) {
-      if (typeof is_membership_active !== "boolean") {
-        return NextResponse.json({ error: "Please specify if your membership is active" }, { status: 400 });
-      }
-    } else {
-      if (!whatsapp_number || typeof whatsapp_number !== "string" || !whatsapp_number.trim()) {
-        return NextResponse.json({ error: "WhatsApp number is required for waitlist" }, { status: 400 });
-      }
+    if (is_spe_member && typeof is_membership_active !== "boolean") {
+      return NextResponse.json({ error: "Please specify if your SPE membership is active" }, { status: 400 });
     }
 
     // Check if registration already exists for this email to prevent duplicates
@@ -77,7 +79,7 @@ export async function POST(req: NextRequest) {
     const accessCode = generateAccessCode();
     const daysString = Array.isArray(selected_days)
       ? selected_days.join(", ")
-      : (selected_days || "Day 1, Day 2, Day 3");
+      : (selected_days || "Day 1, Day 2, Day 3, Day 4, Day 5");
 
     const { data, error } = await supabaseServer
       .from("event_registrations")
@@ -88,7 +90,7 @@ export async function POST(req: NextRequest) {
         department: department.trim(),
         is_spe_member,
         is_membership_active: is_spe_member ? is_membership_active : null,
-        whatsapp_number: is_spe_member ? null : whatsapp_number.trim(),
+        whatsapp_number: whatsapp_number.trim(),
         access_code: accessCode,
         selected_days: daysString,
       })
@@ -122,7 +124,7 @@ export async function POST(req: NextRequest) {
         department: department.trim(),
         isSpeMember: is_spe_member,
         isMembershipActive: is_spe_member ? is_membership_active : null,
-        whatsappNumber: is_spe_member ? null : whatsapp_number.trim(),
+        whatsappNumber: whatsapp_number.trim(),
         accessCode,
         selectedDays: daysString,
       });

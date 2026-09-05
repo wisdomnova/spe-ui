@@ -45,30 +45,25 @@ export default function EventRegisterPage() {
       setErrorMsg("Please enter a valid email address.");
       return;
     }
+    if (!formData.whatsapp_number.trim()) {
+      setErrorMsg("Please enter your phone / WhatsApp number.");
+      return;
+    }
     if (!formData.department.trim()) {
       setErrorMsg("Please enter your department.");
+      return;
+    }
+    if (formData.selected_days.length === 0) {
+      setErrorMsg("Please select at least one day you plan to attend.");
       return;
     }
     if (formData.is_spe_member === null) {
       setErrorMsg("Please select whether you are an SPE member.");
       return;
     }
-
-    if (formData.selected_days.length === 0) {
-      setErrorMsg("Please select at least one day you plan to attend.");
+    if (formData.is_spe_member === true && formData.is_membership_active === null) {
+      setErrorMsg("Please indicate if your SPE membership is currently active.");
       return;
-    }
-
-    if (formData.is_spe_member) {
-      if (formData.is_membership_active === null) {
-        setErrorMsg("Please indicate if your SPE membership is currently active.");
-        return;
-      }
-    } else {
-      if (!formData.whatsapp_number.trim()) {
-        setErrorMsg("Please enter your WhatsApp number to join the waitlist.");
-        return;
-      }
     }
 
     setSubmitting(true);
@@ -151,7 +146,7 @@ export default function EventRegisterPage() {
                       isDarkMode ? "text-gray-400" : "text-gray-500"
                     }`}
                   >
-                    Full Name
+                    Full Name <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -174,7 +169,7 @@ export default function EventRegisterPage() {
                       isDarkMode ? "text-gray-400" : "text-gray-500"
                     }`}
                   >
-                    Email Address
+                    Email Address <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="email"
@@ -190,6 +185,29 @@ export default function EventRegisterPage() {
                   />
                 </div>
 
+                {/* Phone / WhatsApp Number */}
+                <div className="space-y-2">
+                  <label
+                    className={`block text-xs font-bold uppercase tracking-widest transition-colors duration-1000 ${
+                      isDarkMode ? "text-gray-400" : "text-gray-500"
+                    }`}
+                  >
+                    Phone Number (WhatsApp) <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="tel"
+                    required
+                    placeholder="e.g. +234 801 234 5678"
+                    value={formData.whatsapp_number}
+                    onChange={(e) => setFormData({ ...formData, whatsapp_number: e.target.value })}
+                    className={`w-full rounded-2xl border px-6 py-4 text-sm font-semibold outline-none transition-all duration-500 ${
+                      isDarkMode
+                        ? "border-neutral-800 bg-[#1A1A1A] text-white focus:border-blue-600 placeholder-neutral-600"
+                        : "border-gray-200 bg-white text-gray-900 focus:border-blue-600 placeholder-gray-300"
+                    }`}
+                  />
+                </div>
+
                 {/* Department */}
                 <div className="space-y-2">
                   <label
@@ -197,7 +215,7 @@ export default function EventRegisterPage() {
                       isDarkMode ? "text-gray-400" : "text-gray-500"
                     }`}
                   >
-                    Department
+                    Department <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -220,7 +238,7 @@ export default function EventRegisterPage() {
                       isDarkMode ? "text-gray-400" : "text-gray-500"
                     }`}
                   >
-                    Which days will you attend?
+                    Which days will you attend? <span className="text-red-500">*</span>
                   </label>
                   <div className="space-y-3">
                     {/* Row 1: Day 1 - 3 */}
@@ -299,12 +317,12 @@ export default function EventRegisterPage() {
                       isDarkMode ? "text-gray-400" : "text-gray-500"
                     }`}
                   >
-                    Are you an SPE member?
+                    Are you an SPE member? <span className="text-red-500">*</span>
                   </label>
                   <div className="grid grid-cols-2 gap-4">
                     <button
                       type="button"
-                      onClick={() => setFormData({ ...formData, is_spe_member: true, whatsapp_number: "" })}
+                      onClick={() => setFormData({ ...formData, is_spe_member: true })}
                       className={`rounded-2xl py-4 text-xs font-bold uppercase tracking-wider transition-all border ${
                         formData.is_spe_member === true
                           ? "bg-blue-600 text-white border-blue-600"
@@ -346,7 +364,7 @@ export default function EventRegisterPage() {
                           isDarkMode ? "text-gray-400" : "text-gray-500"
                         }`}
                       >
-                        Is your membership active?
+                        Is your membership active? <span className="text-red-500">*</span>
                       </label>
                       <div className="grid grid-cols-2 gap-4">
                         <button
@@ -381,31 +399,17 @@ export default function EventRegisterPage() {
 
                   {formData.is_spe_member === false && (
                     <motion.div
-                      key="non-member-whatsapp"
+                      key="non-member-note"
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: "auto" }}
                       exit={{ opacity: 0, height: 0 }}
-                      className="space-y-2 overflow-hidden"
+                      className={`rounded-2xl p-4 border text-xs font-medium overflow-hidden ${
+                        isDarkMode
+                          ? "bg-blue-950/20 border-blue-900/40 text-blue-300"
+                          : "bg-blue-50 border-blue-200 text-blue-800"
+                      }`}
                     >
-                      <label
-                        className={`block text-xs font-bold uppercase tracking-widest transition-colors duration-1000 ${
-                          isDarkMode ? "text-gray-400" : "text-gray-500"
-                        }`}
-                      >
-                        WhatsApp Number (to join waitlist)
-                      </label>
-                      <input
-                        type="tel"
-                        required
-                        placeholder="+234..."
-                        value={formData.whatsapp_number}
-                        onChange={(e) => setFormData({ ...formData, whatsapp_number: e.target.value })}
-                        className={`w-full rounded-2xl border px-6 py-4 text-sm font-semibold outline-none transition-all duration-500 ${
-                          isDarkMode
-                            ? "border-neutral-800 bg-[#1A1A1A] text-white focus:border-blue-600 placeholder-neutral-600"
-                            : "border-gray-200 bg-white text-gray-900 focus:border-blue-600 placeholder-gray-300"
-                        }`}
-                      />
+                      ℹ️ <strong>Priority Waitlist:</strong> Non-SPE members will be placed on our priority guest waitlist. We will notify you with your entry status on WhatsApp and email.
                     </motion.div>
                   )}
                 </AnimatePresence>
